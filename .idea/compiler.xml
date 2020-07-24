@@ -7,18 +7,12 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="MiniFass" />
-        <module name="SpringBootGrpcDemo" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="MiniFass" target="10" />
-      <module name="SpringBootGrpcDemo" target="1.8" />
-    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="MiniFass" options="-parameters" />
-      <module name="SpringBootGrpcDemo" options="-parameters" />
+      <module name="MiniFass" options="" />
     </option>
   </component>
 </project>

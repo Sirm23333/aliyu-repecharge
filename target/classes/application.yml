@@ -1,11 +1,10 @@
-# Spring Boot Port Config
-server:
-  port: 8081
-
 # Custom Grpc Config
-grpc:
-  server:
-    port: 18081
-  client:
-    host: 127.0.0.1
-    port: 18081
+#grpc:
+#  server:
+#    port: 18081
+#  client:
+#    host: 127.0.0.1
+#    port: 18081
+#logging:
+#  level:
+#    root: info

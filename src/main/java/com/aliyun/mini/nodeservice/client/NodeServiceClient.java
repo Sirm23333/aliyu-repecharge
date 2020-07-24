@@ -1,40 +1,41 @@
 package com.aliyun.mini.nodeservice.client;
 
-import com.aliyun.mini.nodeservice.NodeServiceGrpc;
+import com.aliyun.mini.nodeservice.NodeServiceGrpc.*;
 import io.grpc.Channel;
+import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import nodeservoceproto.NodeServiceOuterClass;
+import nodeservoceproto.NodeServiceOuterClass.*;
 
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
+
+import static com.aliyun.mini.nodeservice.NodeServiceGrpc.newBlockingStub;
 
 
 public class NodeServiceClient {
 
     private static final Logger logger = Logger.getLogger(NodeServiceClient.class.getName());
 
-    private final NodeServiceGrpc.NodeServiceBlockingStub blockingStub;
+    private final NodeServiceBlockingStub blockingStub;
 
     public NodeServiceClient(Channel channel) {
-        blockingStub = NodeServiceGrpc.newBlockingStub(channel);
+        blockingStub = newBlockingStub(channel);
     }
 
-    /**
-     * 获取状态
-     * @param req
-     * @return
-     */
-    public NodeServiceOuterClass.GetStatsReply getStats(NodeServiceOuterClass.GetStatsRequest req) {
+    public GetStatsReply getStats(GetStatsRequest req) {
         return blockingStub.getStats(req);
     }
+    public CreateContainerReply createContainer(CreateContainerRequest createContainerRequest){
+        return blockingStub.createContainer(createContainerRequest);
+    }
+    public RemoveContainerReply removeContainer(RemoveContainerRequest removeContainerRequest){
+        return blockingStub.removeContainer(removeContainerRequest);
+    }
 
-    public static NodeServiceClient New() {
-        var rmEndpoint = System.getenv("NODE_SERVICE_ENDPOINT");
-        if (null == rmEndpoint) {
-            rmEndpoint = "0.0.0.0:10400";
-        }
-        var channel = ManagedChannelBuilder.forTarget(rmEndpoint).usePlaintext().build();
-        var client = new NodeServiceClient(channel);
+    public static NodeServiceClient New(String endPoint) {
+        String rmEndpoint = endPoint;
+        ManagedChannel channel = ManagedChannelBuilder.forTarget(rmEndpoint).usePlaintext().build();
+        NodeServiceClient client = new NodeServiceClient(channel);
         logger.info("Connected to NodeService server at " + rmEndpoint);
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {

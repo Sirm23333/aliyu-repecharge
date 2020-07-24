@@ -1,6 +1,7 @@
 package com.aliyun.mini.resourcemanager.client;
 
 import io.grpc.Channel;
+import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import resourcemanagerproto.ResourceManagerGrpc;
 import resourcemanagerproto.ResourceManagerGrpc.ResourceManagerBlockingStub;
@@ -8,7 +9,6 @@ import resourcemanagerproto.ResourceManagerOuterClass.*;
 
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
-
 
 public class ResourceManagerClient {
 
@@ -33,12 +33,12 @@ public class ResourceManagerClient {
     }
 
     public static ResourceManagerClient New() {
-        var rmEndpoint = System.getenv("RESOURCE_MANAGER_ENDPOINT");
+        String rmEndpoint = System.getenv("RESOURCE_MANAGER_ENDPOINT");
         if (null == rmEndpoint) {
             rmEndpoint = "0.0.0.0:10400";
         }
-        var channel = ManagedChannelBuilder.forTarget(rmEndpoint).usePlaintext().build();
-        var client = new ResourceManagerClient(channel);
+        ManagedChannel channel = ManagedChannelBuilder.forTarget(rmEndpoint).usePlaintext().build();
+        ResourceManagerClient client = new ResourceManagerClient(channel);
         logger.info("Connected to ResourceManager server at " + rmEndpoint);
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {

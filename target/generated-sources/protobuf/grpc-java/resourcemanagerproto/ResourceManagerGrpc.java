@@ -22,7 +22,7 @@ import static io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall;
     comments = "Source: resource_manager.proto")
 public final class ResourceManagerGrpc {
 
-  public ResourceManagerGrpc() {}
+  private ResourceManagerGrpc() {}
 
   public static final String SERVICE_NAME = "resourcemanagerproto.ResourceManager";
 
