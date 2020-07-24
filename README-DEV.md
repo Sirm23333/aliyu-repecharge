@@ -6,6 +6,6 @@
 - dev-run.sh rebuild : 重新构建Scheduler镜像并启动本地测试环境，第一次运行用时可能长一点，需要从远程pull镜像
 - dev-run.sh : 直接启动本地测试环境，不再重新构建scheduler，需保证本地有LOCAL_SCHEDULER_IMAGE_NAME镜像
 - dev-clean.sh : 清理本地测试环境
-- push.sh : 构建Scheduler镜像并pull到远程镜像仓库
+- push.sh : 构建Scheduler镜像并push到远程镜像仓库
 - 本地测试服务环境启动成功后，直接在idea运行com.aliyun.mini.client.APIClientRun，启动客户端测试，可以直接在这更改请求函数的次数、频率等
 - ps:本地测试日志需要用log输出，线上要用system.out
