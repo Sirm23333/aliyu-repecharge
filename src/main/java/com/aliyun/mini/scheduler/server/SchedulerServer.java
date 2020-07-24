@@ -3,14 +3,14 @@ package com.aliyun.mini.scheduler.server;
 import com.aliyun.mini.scheduler.constans.ObjectFactory;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
-
+@Slf4j
 public class SchedulerServer {
 
-    private static final Logger logger = Logger.getLogger(SchedulerServer.class.getName());
 
     private final int port;
     private final Server server;
@@ -24,7 +24,7 @@ public class SchedulerServer {
 
     public void start() throws IOException {
         server.start();
-        logger.info("Started scheduler server listening on " + port);
+        log.info("Started scheduler server listening on " + port);
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {
                 SchedulerServer.this.stop();

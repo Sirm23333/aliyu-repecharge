@@ -1,6 +1,10 @@
 #!/bin/bash
-mvn assembly:assembly
-docker build -t registry.cn-hangzhou.aliyuncs.com/sirm/java-mini-faas:latest .
-docker login --username=sirmsyp registry.cn-hangzhou.aliyuncs.com
-docker push registry.cn-hangzhou.aliyuncs.com/sirm/java-mini-faas
-docker rmi -f `docker images | grep  "<none>" | awk '{print $3}'` # 慎用!!!清除本地none镜像
+source common.sh
+build-scheduler
+docker login --username=$REMOTE_REGISTRY_USERNAME registry.cn-hangzhou.aliyuncs.com
+docker push $REMOTE_REGISTRY_ADDR
+
+
+
+
+

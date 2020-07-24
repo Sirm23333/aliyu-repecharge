@@ -5,13 +5,14 @@ import com.aliyun.mini.scheduler.core.impl_0722.model.ContainerInfo;
 import com.aliyun.mini.scheduler.core.impl_0722.model.NodeInfo;
 import com.aliyun.mini.scheduler.proto.SchedulerGrpc.*;
 import io.grpc.stub.StreamObserver;
+import lombok.extern.slf4j.Slf4j;
 import nodeservoceproto.NodeServiceOuterClass.*;
 import resourcemanagerproto.ResourceManagerOuterClass.*;
 import schedulerproto.SchedulerOuterClass.*;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-
+@Slf4j
 public class SchedulerImp_0722 extends SchedulerImplBase {
 
     private ResourceManagerClient resourceManager = ResourceManagerClient.New();
@@ -31,7 +32,7 @@ public class SchedulerImp_0722 extends SchedulerImplBase {
         long memoryInBytes = request.getFunctionConfig().getMemoryInBytes();
         long timeoutInMs = request.getFunctionConfig().getTimeoutInMs();
         System.out.println("New RequestId("+requestId + "):functionName="+functionName + ";memoryInBytes="+memoryInBytes + ";timeoutInMs="+timeoutInMs);
-
+        log.info("New RequestId("+requestId + "):functionName="+functionName + ";memoryInBytes="+memoryInBytes + ";timeoutInMs="+timeoutInMs);
         requestMap.put(requestId,functionName);
         ContainerInfo selectedContainer = null , tmpContainer;
         Map<String, ContainerInfo> containerMap = functionMap.get(functionName);
@@ -73,6 +74,7 @@ public class SchedulerImp_0722 extends SchedulerImplBase {
                         reserveNodeReply.getNode().getMemoryInBytes() - memoryInBytes,
                         nodeServiceClient);
                 System.out.println("ReserveNode for RequestId("+requestId+"):nodeId="+selectedNodeInfo.getNodeId()+";address="+selectedNodeInfo.getAddress()+":"+selectedNodeInfo.getPort()+";availableMem="+selectedNodeInfo.getAvailableMemInBytes());
+                log.info("ReserveNode for RequestId("+requestId+"):nodeId="+selectedNodeInfo.getNodeId()+";address="+selectedNodeInfo.getAddress()+":"+selectedNodeInfo.getPort()+";availableMem="+selectedNodeInfo.getAvailableMemInBytes());
                 nodeMap.put(selectedNodeInfo.getNodeId(),selectedNodeInfo);
             }
             // 在选定的node上创建container
@@ -94,6 +96,7 @@ public class SchedulerImp_0722 extends SchedulerImplBase {
             functionMap.get(functionName).put(selectedContainer.getId(),selectedContainer);
         }
         System.out.println("AcquireContainer for RequestId("+requestId+"):functionName="+functionName+";nodeId="+selectedContainer.getNodeId()+";address="+selectedContainer.getAddress()+":"+selectedContainer.getPort()+";containerId="+selectedContainer.getId());
+        log.info("AcquireContainer for RequestId("+requestId+"):functionName="+functionName+";nodeId="+selectedContainer.getNodeId()+";address="+selectedContainer.getAddress()+":"+selectedContainer.getPort()+";containerId="+selectedContainer.getId());
         AcquireContainerReply acquireContainerReply = AcquireContainerReply.newBuilder()
                 .setNodeId(selectedContainer.getNodeId())
                 .setNodeAddress(selectedContainer.getAddress())
@@ -109,6 +112,7 @@ public class SchedulerImp_0722 extends SchedulerImplBase {
                                 StreamObserver<ReturnContainerReply> responseObserver) {
         ContainerInfo containerInfo = functionMap.get(requestMap.get(request.getRequestId())).get(request.getContainerId());
         System.out.println("ReturnContainer from RequestId("+request.getRequestId()+"):containerId="+containerInfo.getId()+";nodeId="+containerInfo.getNodeId());
+        log.info("ReturnContainer from RequestId("+request.getRequestId()+"):containerId="+containerInfo.getId()+";nodeId="+containerInfo.getNodeId());
         synchronized (containerInfo){
             containerInfo.getRequestSet().remove(request.getRequestId());
         }
