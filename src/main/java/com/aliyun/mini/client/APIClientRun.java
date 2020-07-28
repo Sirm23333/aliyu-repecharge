@@ -29,19 +29,47 @@ public class APIClientRun {
     public static void start(){
         APIClient client = APIClient.New(endPoint);
         ListFunctionsReply listFunctionsReply = client.listFunctions(null);
-        for(FunctionConfig functionConfig : listFunctionsReply.getFunctionsList()){
-            String e = sampleEvents.get(functionConfig.getFunctionName());
-            JSONObject event = new JSONObject();
-            event.put("functionName",functionConfig.getFunctionName());
-            event.put("param",e);
-            log.info("Invoking function "+functionConfig.getFunctionName()+" with event" +sampleEvents.get(functionConfig.getFunctionName()));
+//        for(int i = 0; i < 20; i++){
+//            try {
+//                Thread.sleep(100);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//            for(FunctionConfig functionConfig : listFunctionsReply.getFunctionsList()){
+//                String e = sampleEvents.get(functionConfig.getFunctionName());
+//                JSONObject event = new JSONObject();
+//                event.put("functionName",functionConfig.getFunctionName());
+//                event.put("param",e);
+//                log.info("Invoking function "+functionConfig.getFunctionName()+" with event" +sampleEvents.get(functionConfig.getFunctionName()));
+////            System.out.println("Invoking function "+functionConfig.getFunctionName()+" with event" +sampleEvents.get(functionConfig.getFunctionName()));
+//                InvokeFunctionReply invokeFunctionReply = client.invokeFunction(InvokeFunctionRequest.newBuilder()
+//                        .setEvent(ByteString.copyFromUtf8(event.toJSONString()))
+//                        .setFunctionName(functionConfig.getFunctionName()).build());
+//                log.info("Invoke function reply "+invokeFunctionReply);
+////            System.out.println("Invoke function reply "+invokeFunctionReply);
+//            }
+//
+//        }
+        for(int k = 0; k < 8;k++){
+            Thread t = new Thread(()->{
+                for(int i = 0; i < 100; i++){
+                    FunctionConfig functionConfig = listFunctionsReply.getFunctionsList().get(1);
+                    String e = sampleEvents.get(functionConfig.getFunctionName());
+                    JSONObject event = new JSONObject();
+                    event.put("functionName",functionConfig.getFunctionName());
+                    event.put("param",e);
+                    log.info("Invoking function "+functionConfig.getFunctionName()+" with event" +sampleEvents.get(functionConfig.getFunctionName()));
 //            System.out.println("Invoking function "+functionConfig.getFunctionName()+" with event" +sampleEvents.get(functionConfig.getFunctionName()));
-            InvokeFunctionReply invokeFunctionReply = client.invokeFunction(InvokeFunctionRequest.newBuilder()
-                    .setEvent(ByteString.copyFromUtf8(event.toJSONString()))
-                    .setFunctionName(functionConfig.getFunctionName()).build());
-            log.info("Invoke function reply "+invokeFunctionReply);
+                    InvokeFunctionReply invokeFunctionReply = client.invokeFunction(InvokeFunctionRequest.newBuilder()
+                            .setEvent(ByteString.copyFromUtf8(event.toJSONString()))
+                            .setFunctionName(functionConfig.getFunctionName()).build());
+                    log.info("Invoke function reply "+invokeFunctionReply);
 //            System.out.println("Invoke function reply "+invokeFunctionReply);
+                }
+            });
+            t.start();
         }
+
     }
     public static void main(String[] args) {
         APIClientRun.start();

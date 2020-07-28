@@ -18,4 +18,6 @@ public class ContainerInfo {
     private String nodeId;
     // 正在使用该container的request集合
     private HashSet<String> requestSet;
+
+    private long memoryInBytes;
 }
