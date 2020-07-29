@@ -146,6 +146,7 @@ apiserverproto/APIServerGrpc$APIServerFileDescriptorSupplier.class
 nodeservoceproto/NodeServiceOuterClass$RemoveContainerRequestOrBuilder.class
 com/aliyun/mini/resourcemanager/client/ResourceManagerClient.class
 schedulerproto/SchedulerOuterClass$AcquireContainerRequest.class
+com/aliyun/mini/client/APIClient.class
 nodeservoceproto/NodeServiceOuterClass$InvokeFunctionReplyOrBuilder.class
 nodeservoceproto/NodeServiceOuterClass$RemoveContainerReply$Builder.class
 nodeservoceproto/NodeServiceOuterClass$InvokeFunctionReply$1.class
@@ -182,6 +183,7 @@ nodeservoceproto/NodeServiceGrpc$NodeServiceBlockingStub.class
 apiserverproto/Apiserver$InvokeFunctionRequest.class
 schedulerproto/SchedulerGrpc.class
 com/aliyun/mini/constants/GlobalContain.class
+com/aliyun/mini/client/APIClientRun.class
 schedulerproto/SchedulerOuterClass$ReturnContainerRequestOrBuilder.class
 apiserverproto/APIServerGrpc$APIServerMethodDescriptorSupplier.class
 schedulerproto/SchedulerOuterClass$FunctionConfigOrBuilder.class

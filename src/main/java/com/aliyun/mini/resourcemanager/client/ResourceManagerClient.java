@@ -25,7 +25,7 @@ public class ResourceManagerClient {
     }
 
     public ReleaseNodeReply releaseNode(ReleaseNodeRequest req) {
-        return blockingStub.releaseNode(req);
+        return blockingStub.withDeadlineAfter(30,TimeUnit.SECONDS).releaseNode(req);
     }
 
     public GetNodesUsageReply getNodesUsage(GetNodesUsageRequest req) {
