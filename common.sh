@@ -9,7 +9,7 @@ export REMOTE_REGISTRY_ADDR=registry.cn-hangzhou.aliyuncs.com/sirm/java-mini-faa
 export REMOTE_REGISTRY_USERNAME=sirmsyp
 
 build-scheduler(){
-  mvn assembly:assembly
+  mvn clean assembly:assembly
   docker build -t $LOCAL_SCHEDULER_IMAGE_NAME:latest .
   docker rmi -f `docker images | grep  "<none>" | awk '{print $3}'` # 慎用!!!清除本地none镜像
 }
