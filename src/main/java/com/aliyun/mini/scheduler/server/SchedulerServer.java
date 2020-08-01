@@ -52,18 +52,18 @@ public class SchedulerServer {
     }
 
     public static void main(String[] args) throws Exception {
-        String path = "/aliyuncnpc/scheduler/log/application.log";
-        FileOutputStream puts = null;
-        try {
-            puts = new FileOutputStream(path,true);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        PrintStream out = new PrintStream(puts);
-        System.setOut(out);
-        System.setErr(out);
-        NodeContainerManagerThread.start();
-        log.info("nodeContainerManagerThread start...");
+//        String path = "/aliyuncnpc/scheduler/log/application.log";
+//        FileOutputStream puts = null;
+//        try {
+//            puts = new FileOutputStream(path,true);
+//        } catch (FileNotFoundException e) {
+//            e.printStackTrace();
+//        }
+//        PrintStream out = new PrintStream(puts);
+//        System.setOut(out);
+//        System.setErr(out);
+//        NodeContainerManagerThread.start();
+//        log.info("nodeContainerManagerThread start...");
         SchedulerServer server = new SchedulerServer(10600);
         server.start();
         server.blockUntilShutdown();
