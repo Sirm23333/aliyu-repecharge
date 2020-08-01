@@ -20,4 +20,6 @@ public class ContainerInfo {
     private HashSet<String> requestSet;
 
     private long memoryInBytes;
+
+    private int reqLimit;
 }

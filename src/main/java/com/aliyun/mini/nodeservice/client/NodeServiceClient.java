@@ -4,6 +4,7 @@ import com.aliyun.mini.nodeservice.NodeServiceGrpc.*;
 import io.grpc.Channel;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import lombok.extern.slf4j.Slf4j;
 import nodeservoceproto.NodeServiceOuterClass.*;
 
 import java.util.concurrent.TimeUnit;
@@ -11,7 +12,7 @@ import java.util.logging.Logger;
 
 import static com.aliyun.mini.nodeservice.NodeServiceGrpc.newBlockingStub;
 
-
+@Slf4j
 public class NodeServiceClient {
 
     private static final Logger logger = Logger.getLogger(NodeServiceClient.class.getName());
@@ -36,7 +37,7 @@ public class NodeServiceClient {
         String rmEndpoint = endPoint;
         ManagedChannel channel = ManagedChannelBuilder.forTarget(rmEndpoint).usePlaintext().build();
         NodeServiceClient client = new NodeServiceClient(channel);
-        logger.info("Connected to NodeService server at " + rmEndpoint);
+        log.info("Connected to NodeService server at " + rmEndpoint);
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {

@@ -4,8 +4,8 @@ import com.aliyun.mini.resourcemanager.client.ResourceManagerClient;
 import com.aliyun.mini.scheduler.core.impl_0722.model.ContainerInfo;
 import com.aliyun.mini.scheduler.core.impl_0722.model.NodeInfo;
 import com.aliyun.mini.scheduler.proto.SchedulerGrpc.*;
+import com.aliyun.mini.scheduler.util.NumberUtil;
 import com.java.mini.faas.ana.dto.*;
-import com.java.mini.faas.ana.log.LogAna;
 import com.java.mini.faas.ana.log.LogWriter;
 import io.grpc.stub.StreamObserver;
 import lombok.extern.slf4j.Slf4j;
@@ -13,9 +13,6 @@ import nodeservoceproto.NodeServiceOuterClass.*;
 import resourcemanagerproto.ResourceManagerOuterClass.*;
 import schedulerproto.SchedulerOuterClass.*;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.PrintStream;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -31,6 +28,10 @@ public class SchedulerImp_0722 extends SchedulerImplBase {
     private Map<String,Map<String, ContainerInfo>> functionMap = new ConcurrentHashMap<>();
     // requestId -> functionName
     private Map<String,String> requestMap = new ConcurrentHashMap<>();
+
+    private boolean started = false;
+
+
     @Override
     public void acquireContainer(AcquireContainerRequest request,
                                  StreamObserver<AcquireContainerReply> responseObserver) {
@@ -41,8 +42,6 @@ public class SchedulerImp_0722 extends SchedulerImplBase {
         long timeoutInMs = request.getFunctionConfig().getTimeoutInMs();
 
         logWriter.newRequestInfo(new NewRequestDTO(requestId,functionName,memoryInBytes,timeoutInMs));
-//        System.out.println("New RequestId("+requestId + "):functionName="+functionName + ";memoryInBytes="+memoryInBytes + ";timeoutInMs="+timeoutInMs);
-//        log.info("New RequestId("+requestId + "):functionName="+functionName + ";memoryInBytes="+memoryInBytes + ";timeoutInMs="+timeoutInMs);
         requestMap.put(requestId,functionName);
         ContainerInfo selectedContainer = null , tmpContainer;
         Map<String, ContainerInfo> containerMap = functionMap.get(functionName);
@@ -53,13 +52,14 @@ public class SchedulerImp_0722 extends SchedulerImplBase {
         for(Map.Entry entry : containerMap.entrySet()){
             tmpContainer = (ContainerInfo) entry.getValue();
             synchronized (tmpContainer){
-                if(tmpContainer.getRequestSet().size() < 5){
+                if(containerMap.containsKey(tmpContainer.getId()) && tmpContainer.getRequestSet().size() < tmpContainer.getReqLimit()){
                     tmpContainer.getRequestSet().add(requestId);
                     selectedContainer = tmpContainer;
-                    break;
+                    break ;
                 }
             }
         }
+
         // 现存在的container中没有空闲的，选一个node创建container
         if(Objects.isNull(selectedContainer)){
             NodeInfo selectedNodeInfo = null , tmpNodeInfo;
@@ -79,13 +79,18 @@ public class SchedulerImp_0722 extends SchedulerImplBase {
                 try{
 
                     logWriter.readyToReserveNode(new ReadyToReserveNodeDTO(requestId));
-
                     reserveNodeReply = resourceManager.reserveNode(ReserveNodeRequest.newBuilder()
                             .setAccountId(request.getAccountId()).build());
                 }catch (Exception e){
                     logWriter.reserveNodeError(new ReserveNodeErrorDTO(requestId,e));
-                    responseObserver.onNext(null);
-                    responseObserver.onCompleted();
+                    System.out.println("try again..");
+                    try {
+                        Thread.sleep(200);
+                    } catch (InterruptedException ex) {
+                        ex.printStackTrace();
+                    }
+                    // 创建失败再尝试
+                    acquireContainer(request,responseObserver);
                     return ;
                 }
                 NodeServiceClient nodeServiceClient = NodeServiceClient.New(reserveNodeReply.getNode().getAddress()+":"+reserveNodeReply.getNode().getNodeServicePort());
@@ -122,8 +127,10 @@ public class SchedulerImp_0722 extends SchedulerImplBase {
             }
             HashSet<String> requestSet = new HashSet<>();
             requestSet.add(requestId);
-            selectedContainer = new ContainerInfo(newContainerReply.getContainerId(),selectedNodeInfo.getAddress(),selectedNodeInfo.getPort(),selectedNodeInfo.getNodeId(),requestSet,request.getFunctionConfig().getMemoryInBytes());
-
+            selectedContainer = new ContainerInfo(newContainerReply.getContainerId(),selectedNodeInfo.getAddress(),selectedNodeInfo.getPort(),selectedNodeInfo.getNodeId(),requestSet,request.getFunctionConfig().getMemoryInBytes(),10);
+            if(request.getFunctionName().contains("6") || request.getFunctionName().contains("7") || request.getFunctionName().contains("8")){
+                selectedContainer.setReqLimit(1);
+            }
             logWriter.newContainerInfo(new NewContainerDTO(requestId,selectedNodeInfo.getNodeId(),selectedContainer.getId()));
 
             functionMap.get(functionName).put(selectedContainer.getId(),selectedContainer);

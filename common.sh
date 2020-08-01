@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -e
 export ROOT_PATH=/home/sirm/文档/阿里比赛
 
 export LOCAL_SCHEDULER_IMAGE_NAME=registry.cn-hangzhou.aliyuncs.com/sirm/java-mini-faas

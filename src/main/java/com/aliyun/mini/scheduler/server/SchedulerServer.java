@@ -1,13 +1,17 @@
 package com.aliyun.mini.scheduler.server;
 
-import com.aliyun.mini.scheduler.constans.ObjectFactory;
+import com.aliyun.mini.scheduler.constants.ObjectFactory;
+import com.aliyun.mini.scheduler.core.impl_0730.nodemanager.NodeContainerManagerThread;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
+
 @Slf4j
 public class SchedulerServer {
 
@@ -48,6 +52,18 @@ public class SchedulerServer {
     }
 
     public static void main(String[] args) throws Exception {
+        String path = "/aliyuncnpc/scheduler/log/application.log";
+        FileOutputStream puts = null;
+        try {
+            puts = new FileOutputStream(path,true);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        PrintStream out = new PrintStream(puts);
+        System.setOut(out);
+        System.setErr(out);
+        NodeContainerManagerThread.start();
+        log.info("nodeContainerManagerThread start...");
         SchedulerServer server = new SchedulerServer(10600);
         server.start();
         server.blockUntilShutdown();
