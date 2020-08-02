@@ -42,10 +42,12 @@ public class StrategicThread implements Runnable{
         while(true){
             requestInfo = requestInfoQueue.peek();
             // 队列为空
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            if(requestInfo == null){
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
             for(String containerId : containerIds){
                 ContainerInfo containerInfo = GlobalInfo.containerInfoMap.get(containerId);

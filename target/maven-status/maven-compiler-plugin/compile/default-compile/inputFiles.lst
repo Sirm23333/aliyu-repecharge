@@ -3,11 +3,17 @@
 /home/sirm/文档/Project/IdeaProjects/java-mini-fass/src/main/java/com/aliyun/mini/scheduler/core/impl_0730/model/RequestInfo.java
 /home/sirm/文档/Project/IdeaProjects/java-mini-fass/src/main/java/com/aliyun/mini/client/APIClientRun.java
 /home/sirm/文档/Project/IdeaProjects/java-mini-fass/src/main/java/com/aliyun/mini/scheduler/server/SchedulerServer.java
+/home/sirm/文档/Project/IdeaProjects/java-mini-fass/src/main/java/com/aliyun/mini/scheduler/core/impl_0802/global/GlobalInfo.java
+/home/sirm/文档/Project/IdeaProjects/java-mini-fass/src/main/java/com/aliyun/mini/scheduler/core/impl_0802/model/ContainerInfo.java
 /home/sirm/文档/Project/IdeaProjects/java-mini-fass/src/main/java/com/aliyun/mini/nodeservice/client/NodeServiceClient.java
 /home/sirm/文档/Project/IdeaProjects/java-mini-fass/src/main/java/com/aliyun/mini/scheduler/core/impl_0730/nodemanager/Contants.java
 /home/sirm/文档/Project/IdeaProjects/java-mini-fass/target/generated-sources/protobuf/java/resourcemanagerproto/ResourceManagerOuterClass.java
 /home/sirm/文档/Project/IdeaProjects/java-mini-fass/src/main/java/com/aliyun/mini/scheduler/core/impl_0730/model/ContainerStatus.java
+/home/sirm/文档/Project/IdeaProjects/java-mini-fass/src/main/java/com/aliyun/mini/scheduler/core/impl_0802/model/RequestInfo.java
 /home/sirm/文档/Project/IdeaProjects/java-mini-fass/src/main/java/com/aliyun/mini/scheduler/core/impl_0730/model/ContainerInfo.java
+/home/sirm/文档/Project/IdeaProjects/java-mini-fass/src/main/java/com/aliyun/mini/scheduler/core/impl_0802/strategic/StrategicThread.java
+/home/sirm/文档/Project/IdeaProjects/java-mini-fass/src/main/java/com/aliyun/mini/scheduler/core/impl_0802/model/ContainerStatus.java
+/home/sirm/文档/Project/IdeaProjects/java-mini-fass/src/main/java/com/aliyun/mini/scheduler/core/impl_0802/model/NodeInfo.java
 /home/sirm/文档/Project/IdeaProjects/java-mini-fass/src/main/java/com/aliyun/mini/scheduler/constants/ObjectFactory.java
 /home/sirm/文档/Project/IdeaProjects/java-mini-fass/src/main/java/com/aliyun/mini/Launcher.java
 /home/sirm/文档/Project/IdeaProjects/java-mini-fass/src/main/java/com/aliyun/mini/scheduler/proto/SchedulerGrpc.java
@@ -22,6 +28,7 @@
 /home/sirm/文档/Project/IdeaProjects/java-mini-fass/src/main/java/com/aliyun/mini/scheduler/core/impl_0730/global/GlobalInfo.java
 /home/sirm/文档/Project/IdeaProjects/java-mini-fass/target/generated-sources/protobuf/java/schedulerproto/SchedulerOuterClass.java
 /home/sirm/文档/Project/IdeaProjects/java-mini-fass/target/generated-sources/protobuf/grpc-java/apiserverproto/APIServerGrpc.java
+/home/sirm/文档/Project/IdeaProjects/java-mini-fass/src/main/java/com/aliyun/mini/scheduler/core/impl_0802/SchedulerImp_0802.java
 /home/sirm/文档/Project/IdeaProjects/java-mini-fass/src/main/java/com/aliyun/mini/apiserver/APIServerGrpc.java
 /home/sirm/文档/Project/IdeaProjects/java-mini-fass/src/main/java/com/aliyun/mini/scheduler/core/impl_0722/model/ContainerInfo.java
 /home/sirm/文档/Project/IdeaProjects/java-mini-fass/src/main/java/com/aliyun/mini/scheduler/util/NumberUtil.java
@@ -34,6 +41,7 @@
 /home/sirm/文档/Project/IdeaProjects/java-mini-fass/src/main/java/com/aliyun/mini/scheduler/core/impl_0730/SchedulerImp_0730.java
 /home/sirm/文档/Project/IdeaProjects/java-mini-fass/src/main/java/com/aliyun/mini/annotation/GrpcService.java
 /home/sirm/文档/Project/IdeaProjects/java-mini-fass/src/main/java/com/aliyun/mini/constants/GlobalContain.java
+/home/sirm/文档/Project/IdeaProjects/java-mini-fass/src/main/java/com/aliyun/mini/scheduler/core/impl_0802/model/NodeStatus.java
 /home/sirm/文档/Project/IdeaProjects/java-mini-fass/src/main/java/com/aliyun/mini/scheduler/core/impl_0722/model/NodeInfo.java
 /home/sirm/文档/Project/IdeaProjects/java-mini-fass/target/generated-sources/protobuf/grpc-java/nodeservoceproto/NodeServiceGrpc.java
 /home/sirm/文档/Project/IdeaProjects/java-mini-fass/src/main/java/com/aliyun/mini/scheduler/client/SchedulerClient.java

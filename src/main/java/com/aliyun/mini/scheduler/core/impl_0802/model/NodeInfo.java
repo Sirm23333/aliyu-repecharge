@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Data
 @AllArgsConstructor
@@ -20,5 +21,5 @@ public class NodeInfo {
     private double availableVCPU;
     private NodeServiceClient client;
     // 现加载的container,ContainerId -> ContainerInfo
-    private Map<String, ContainerInfo> containerInfoMap;
+    private ConcurrentHashMap<String, ContainerInfo> containerInfoMap;
 }

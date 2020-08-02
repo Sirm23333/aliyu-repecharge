@@ -11,6 +11,7 @@ import com.aliyun.mini.scheduler.core.impl_0730.strategic.StrategicThread;
 import com.aliyun.mini.scheduler.proto.SchedulerGrpc.SchedulerImplBase;
 import com.java.mini.faas.ana.dto.*;
 import com.java.mini.faas.ana.log.LogWriter;
+import io.grpc.netty.shaded.io.netty.util.internal.ConcurrentSet;
 import io.grpc.stub.StreamObserver;
 import jdk.nashorn.internal.objects.Global;
 import lombok.extern.slf4j.Slf4j;
@@ -58,12 +59,16 @@ public class SchedulerImp_0730 extends SchedulerImplBase {
 
         Queue<RequestInfo> requestInfoQueue = GlobalInfo.requestQueueMap.get(request.getFunctionName());
         if(requestInfoQueue == null){
-            requestInfoQueue = new ConcurrentLinkedQueue<>();
-            GlobalInfo.requestQueueMap.put(request.getRequestId(),requestInfoQueue);
-            GlobalInfo.functionNameMap.put(request.getFunctionName(),new HashSet<>());
-            StrategicThread.start(request.getFunctionName(),requestInfoQueue);
-            log.info("StrategicThread start..."+request.getFunctionName());
-
+            synchronized (GlobalInfo.requestQueueMap){
+                requestInfoQueue = GlobalInfo.requestQueueMap.get(request.getFunctionName());
+                if(requestInfoQueue == null){
+                    requestInfoQueue = new ConcurrentLinkedQueue<>();
+                    GlobalInfo.requestQueueMap.put(request.getFunctionName(),requestInfoQueue);
+                    GlobalInfo.functionNameMap.put(request.getFunctionName(),new ConcurrentSet<>());
+                    StrategicThread.start(request.getFunctionName(),requestInfoQueue);
+                    log.info("StrategicThread start..."+request.getFunctionName());
+                }
+            }
         }
         requestInfoQueue.add(requestInfo);
     }

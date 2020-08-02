@@ -53,8 +53,8 @@ public class APIClientRun {
         for(int k = 0; k < 5;k++){
             int finalK = k;
             Thread t = new Thread(()->{
-                for(int i = 0; i < 100; i++){
-                    FunctionConfig functionConfig = listFunctionsReply.getFunctionsList().get(finalK);
+                for(int i = 0; i < 10; i++){
+                    FunctionConfig functionConfig = listFunctionsReply.getFunctionsList().get(0);
                     String e = sampleEvents.get(functionConfig.getFunctionName());
                     JSONObject event = new JSONObject();
                     event.put("functionName",functionConfig.getFunctionName());

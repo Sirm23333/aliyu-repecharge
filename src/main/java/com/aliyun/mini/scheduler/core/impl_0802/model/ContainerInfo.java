@@ -1,5 +1,6 @@
 package com.aliyun.mini.scheduler.core.impl_0802.model;
 
+import io.grpc.netty.shaded.io.netty.util.internal.ConcurrentSet;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -22,5 +23,5 @@ public class ContainerInfo {
     // 并行数上限
     private int concurrencyUpperLimit;
     // 正在使用中的requestId
-    private Set<String> requestSet;
+    private ConcurrentSet<String> requestSet;
 }

@@ -18,4 +18,5 @@ public class RequestInfo {
     private long timeOutInMs;
     private StreamObserver<SchedulerOuterClass.AcquireContainerReply> responseObserver;
     private long timeStamp;
+    private boolean end; // 是否已经处理结束
 }
