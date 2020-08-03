@@ -50,7 +50,7 @@ public class APIClientRun {
 //            }
 //
 //        }
-        for(int k = 0; k < 5;k++){
+        for(int k = 0; k < 20;k++){
             int finalK = k;
             Thread t = new Thread(()->{
                 for(int i = 0; i < 10; i++){

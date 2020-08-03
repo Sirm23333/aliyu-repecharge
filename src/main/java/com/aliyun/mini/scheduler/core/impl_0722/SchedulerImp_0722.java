@@ -31,6 +31,9 @@ public class SchedulerImp_0722 extends SchedulerImplBase {
 
     private boolean started = false;
 
+    private static Map<String,Object> functionNameLockMap = new HashMap<>();
+    private static Map<String,Integer> functionNameContainerNumMap = new HashMap<>();
+
 
     @Override
     public void acquireContainer(AcquireContainerRequest request,
@@ -40,6 +43,9 @@ public class SchedulerImp_0722 extends SchedulerImplBase {
         String handler = request.getFunctionConfig().getHandler();
         long memoryInBytes = request.getFunctionConfig().getMemoryInBytes();
         long timeoutInMs = request.getFunctionConfig().getTimeoutInMs();
+
+
+
 
         logWriter.newRequestInfo(new NewRequestDTO(requestId,functionName,memoryInBytes,timeoutInMs));
         requestMap.put(requestId,functionName);
@@ -62,6 +68,34 @@ public class SchedulerImp_0722 extends SchedulerImplBase {
 
         // 现存在的container中没有空闲的，选一个node创建container
         if(Objects.isNull(selectedContainer)){
+
+//            Object obj = functionNameLockMap.get(functionName);
+//            if(obj == null){
+//                synchronized (functionNameLockMap){
+//                    obj = functionNameLockMap.get(functionName);
+//                    if(obj == null){
+//                        functionNameLockMap.put(functionName,new Object());
+//                        functionNameContainerNumMap.put(functionName,0);
+//                        obj = functionNameLockMap.get(functionName);
+//                    }
+//                }
+//            }
+//            boolean create = false;
+//            synchronized (obj){
+//                if(functionNameContainerNumMap.get(functionName) < 10){
+//                    functionNameContainerNumMap.put(functionName,functionNameContainerNumMap.get(functionName) + 1);
+//                    create = true;
+//                }
+//            }
+//            if(!create){
+//                try {
+//                    Thread.sleep(100);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+//                acquireContainer(request,responseObserver);
+//                return;
+//            }
             NodeInfo selectedNodeInfo = null , tmpNodeInfo;
             for(Map.Entry entry : nodeMap.entrySet()){
                 tmpNodeInfo = (NodeInfo)entry.getValue();
@@ -127,10 +161,10 @@ public class SchedulerImp_0722 extends SchedulerImplBase {
             }
             HashSet<String> requestSet = new HashSet<>();
             requestSet.add(requestId);
-            selectedContainer = new ContainerInfo(newContainerReply.getContainerId(),selectedNodeInfo.getAddress(),selectedNodeInfo.getPort(),selectedNodeInfo.getNodeId(),requestSet,request.getFunctionConfig().getMemoryInBytes(),10);
-            if(request.getFunctionName().contains("6") || request.getFunctionName().contains("7") || request.getFunctionName().contains("8")){
-                selectedContainer.setReqLimit(1);
-            }
+            selectedContainer = new ContainerInfo(newContainerReply.getContainerId(),selectedNodeInfo.getAddress(),selectedNodeInfo.getPort(),selectedNodeInfo.getNodeId(),requestSet,request.getFunctionConfig().getMemoryInBytes(),1);
+//            if(request.getFunctionName().contains("6") || request.getFunctionName().contains("7") || request.getFunctionName().contains("8") || request.getFunctionName().contains("9")){
+//                selectedContainer.setReqLimit(1);
+//            }
             logWriter.newContainerInfo(new NewContainerDTO(requestId,selectedNodeInfo.getNodeId(),selectedContainer.getId()));
 
             functionMap.get(functionName).put(selectedContainer.getId(),selectedContainer);

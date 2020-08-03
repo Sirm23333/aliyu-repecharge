@@ -79,4 +79,8 @@ public class SchedulerImp_0802 extends SchedulerImplBase {
     private boolean containerRunException(ReturnContainerRequest request){
         return request.getErrorCode() != null && !request.getErrorCode().equals("");
     }
+
+    private void removeContainerById(String containerId){
+
+    }
 }
