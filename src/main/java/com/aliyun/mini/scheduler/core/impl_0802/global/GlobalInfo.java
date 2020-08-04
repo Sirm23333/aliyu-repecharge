@@ -31,14 +31,19 @@ public class GlobalInfo {
 
     // functionName -> containerIds set
     public static Map<String, ConcurrentSet<String>> containerIdMap = new ConcurrentHashMap<>();
-    // functionName -> Lock 每个function一个锁 ， 用于Strategic线程与其他可以产生可用container的线性直接通信
+
+
+    // functionName -> Lock 每个function一个锁 ， 用于Strategic线程与其他可以产生可用container的线性之间的通信
+    // StrategicThread中，如果没有可用的container，则进入wait(),由其他可以产生container的线程（如创建新的container，提高了container的并行度，returnContainer）唤醒
     public static Map<String, Object> functionLockMap = new ConcurrentHashMap<>();
-    // 创建或删除node时必须得到锁
+    // node锁，CreateContainer时如果没有node可用，则进入nodeLock.wait()状态，其他可以产生node的线程通过nodeLock.notifyAll()唤醒
     public static Object nodeLock = new Object();
 
 
-    public static ExecutorService threadPool = Executors.newFixedThreadPool(64);
+    public static ExecutorService threadPool;
+    // 创建container的线程队列，拿到队列中的线程后才能创建，用于限制同时创建container的数量
     public static LinkedBlockingQueue<CreateContainerThread> createContainerThreadQueue;
+    // 同上
     public static LinkedBlockingQueue<ReserveNodeThread> reserveNodeThreadQueue;
 
 
