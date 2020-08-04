@@ -49,14 +49,11 @@ public class ReserveNodeThread implements Runnable {
                 GlobalInfo.nodeInfoMap.put(newNodeInfo.getNodeId(), newNodeInfo);
                 NodeStatus nodeStatus = new NodeStatus(newNodeInfo.getNodeId());
                 GlobalInfo.nodeStatusMap.put(nodeStatus.getNodeId(), nodeStatus);
-//                log.info("[NEW_NODE]{},node cnt={}", newNodeInfo, GlobalInfo.nodeInfoMap.size());
                 logWriter.newNodeInfo(new NewNodeDTO(requestInfo.getRequestId(), newNodeInfo.getNodeId(), newNodeInfo.getAddress(), newNodeInfo.getPort()));
             } catch (Exception e) {
                 // 创建失败了
                 logWriter.reserveNodeError(new ReserveNodeErrorDTO(requestInfo.getRequestId(), e));
-//                log.info("[RESERVE_NODE_FAIL]{}", requestInfo);
                 try {
-//                    log.info("[FAIL_SLEEP]{}",requestInfo);
                     Thread.sleep(500);
                 } catch (InterruptedException ex) {
                     ex.printStackTrace();
