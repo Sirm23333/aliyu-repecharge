@@ -9,6 +9,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * 伴随StrategicThread启动
+ * 用来分析是否为没有container可用的请求创建container
  */
 @Slf4j
 public class StrategicCreateContainerThread implements Runnable {
@@ -33,24 +34,19 @@ public class StrategicCreateContainerThread implements Runnable {
         while(true){
             try {
                 RequestInfo blockRequestInfo = blockRequestInfoQueue.take();
-
-//                log.info("[STRATEGIC_CREATE_CONTAINER]get request {}",blockRequestInfo);
                 // do something
                 if(blockRequestInfo.getEnd().get()) {
                     // 这个请求已经被消费了
-//                    log.info("[GIVE_UP_CREATE_CONTAINER_1]{}",blockRequestInfo);
                     continue;
                 }else if(GlobalInfo.containerIdMap.get(blockRequestInfo.getFunctionName()).isEmpty()){
                     // 如果这个function没有container，则马上创建1个container
-//                    log.info("[TRY_TO_CREATE_CONTAINER_1]{}",blockRequestInfo);
                     CreateContainerThread createContainerThread = GlobalInfo.createContainerThreadQueue.take();
                     GlobalInfo.threadPool.execute(createContainerThread.build(blockRequestInfo));
                 }else {
-                    // 等待超过100ms就创建
+                    // 等待超过阈值时间就创建
                     long timeStamp = blockRequestInfo.getTimeStamp();
                     long now = Calendar.getInstance().getTimeInMillis();
                     if(now - timeStamp > StrategicContants.WAIT_TIME_UPPER && !blockRequestInfo.getEnd().get()){
-//                        log.info("[TRY_TO_CREATE_CONTAINER_2]{}",blockRequestInfo);
                         CreateContainerThread createContainerThread = GlobalInfo.createContainerThreadQueue.take();
                         if(!blockRequestInfo.getEnd().get()){
                             GlobalInfo.threadPool.execute(createContainerThread.build(blockRequestInfo));
@@ -59,19 +55,15 @@ public class StrategicCreateContainerThread implements Runnable {
                         }
                     }else{
                         if(now - timeStamp < StrategicContants.WAIT_TIME_UPPER){
-//                            log.info("[SLEEP]{},{}",StrategicContants.WAIT_TIME_UPPER - (now - timeStamp),blockRequestInfo);
                             Thread.sleep(StrategicContants.WAIT_TIME_UPPER - (now - timeStamp));
                         }
                         if(!blockRequestInfo.getEnd().get()){
-//                            log.info("[TRY_TO_CREATE_CONTAINER_3]{}",blockRequestInfo);
                             CreateContainerThread createContainerThread = GlobalInfo.createContainerThreadQueue.take();
                             if(!blockRequestInfo.getEnd().get()){
                                 GlobalInfo.threadPool.execute(createContainerThread.build(blockRequestInfo));
                             }else {
                                 GlobalInfo.createContainerThreadQueue.put(createContainerThread);
                             }
-                        }else {
-//                            log.info("[GIVE_UP_CREATE_CONTAINER_2]{}",blockRequestInfo);
                         }
                     }
                 }

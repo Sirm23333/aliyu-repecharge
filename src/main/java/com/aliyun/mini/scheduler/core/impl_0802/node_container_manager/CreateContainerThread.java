@@ -11,8 +11,7 @@ import nodeservoceproto.NodeServiceOuterClass.*;
 import java.util.UUID;
 
 /**
- * StrategicCreateContainerThread调用启动
- *
+ * 创建container
  */
 @Slf4j
 public class CreateContainerThread implements Runnable {
@@ -28,15 +27,12 @@ public class CreateContainerThread implements Runnable {
 
     @Override
     public void run() {
-//        log.info("[PRE_CREATE_CONTAINER]{}",requestInfo);
         // 先找一个可以创建Container的node
         NodeInfo selectedNode  = null;
         while (true){
-            // 如果已经被消费了，就不用再找node创建container了
+            // 如果请求已经被消费了，就不用再找node创建container了
             if(requestInfo.getEnd().get()){
-//                log.info("[GIVE_UP_CREATE_CONTAINER_3]{}",requestInfo);
                 try {
-//                    log.info("[PUT_CREATE]{}",requestInfo);
                     GlobalInfo.createContainerThreadQueue.put(this);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -44,7 +40,9 @@ public class CreateContainerThread implements Runnable {
                 return;
             }
             selectedNode = getBestNode();
-            if(selectedNode == null){
+            if(selectedNode != null){
+                break;
+            }else{
                 // 没有可以用的node，申请一个node?等待?这里先直接申请
                 synchronized (GlobalInfo.nodeLock){
                     // double check
@@ -63,27 +61,21 @@ public class CreateContainerThread implements Runnable {
                         }
                     }
                 }
-            }else {
-                break;
             }
         }
-//        log.info("[GET_BEST_NODE_TO_CREATE_CONTAINER]{}",requestInfo);
         // 如果request已经被消费了，那么不再创建container，返还预拿的node的memory
         if(requestInfo.getEnd().get()){
-//            log.info("[GIVE_UP_CREATE_CONTAINER_4]{}",requestInfo);
             synchronized (selectedNode){
                 selectedNode.setAvailableMemInBytes(selectedNode.getAvailableMemInBytes() + requestInfo.getMemoryInBytes());
                 selectedNode.setAvailableVCPU(selectedNode.getAvailableVCPU() + requestInfo.getMemoryInBytes() * 0.67 / (1024 * 1024 * 1024));
             }
             try {
-//                log.info("[PUT_CREATE]{}",requestInfo);
                 GlobalInfo.createContainerThreadQueue.put(this);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
             return;
         }
-//        log.info("[REAL_TO_CREATE]{}",requestInfo);
         // 创建container
         CreateContainerReply container = null;
         try {
@@ -100,13 +92,10 @@ public class CreateContainerThread implements Runnable {
             e.printStackTrace();
             logWriter.createContainerError(new CreateContainerErrorDTO(requestInfo.getRequestId(),e));
         }
-//        log.info("[NEW_CONTAINER]{}",requestInfo);
         ContainerInfo containerInfo = new ContainerInfo(container.getContainerId(),requestInfo.getFunctionName(),selectedNode.getNodeId(),selectedNode.getAddress(),
                 selectedNode.getPort(),requestInfo.getMemoryInBytes(),requestInfo.getMemoryInBytes() * 0.67 / (1024 * 1024 * 1024),
                 1,
                 new ConcurrentSet<>());
-//        selectedNode.setAvailableMemInBytes(selectedNode.getAvailableMemInBytes() - requestInfo.getMemoryInBytes());
-//        selectedNode.setAvailableVCPU(selectedNode.getAvailableVCPU() - containerInfo.getVCPU());
         GlobalInfo.containerInfoMap.put(containerInfo.getContainerId(),containerInfo);
         ContainerStatus containerStatus = new ContainerStatus(containerInfo.getContainerId());
         GlobalInfo.containerStatusMap.put(containerStatus.getContainerId(),containerStatus);
@@ -114,13 +103,11 @@ public class CreateContainerThread implements Runnable {
         GlobalInfo.nodeInfoMap.get(selectedNode.getNodeId()).getContainerInfoMap().put(containerInfo.getContainerId(),containerInfo);
         GlobalInfo.containerIdMap.get(containerInfo.getFunctionName()).add(containerInfo.getContainerId());
         logWriter.newContainerInfo(new NewContainerDTO(requestInfo.getRequestId(),selectedNode.getNodeId(),containerInfo.getContainerId()));
-//        log.info("[NEW_CONTAINER_BUILD]{},{}",requestInfo,containerInfo);
         Object lock = GlobalInfo.functionLockMap.get(containerInfo.getFunctionName());
         synchronized (lock){
             lock.notifyAll();
         }
         try {
-//            log.info("[PUT_CREATE]{}",requestInfo);
             GlobalInfo.createContainerThreadQueue.put(this);
         } catch (InterruptedException e) {
             e.printStackTrace();

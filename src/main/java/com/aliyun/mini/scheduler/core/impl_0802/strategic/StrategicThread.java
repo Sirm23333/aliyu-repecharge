@@ -7,8 +7,6 @@ import com.java.mini.faas.ana.log.LogWriter;
 import io.grpc.netty.shaded.io.netty.util.internal.ConcurrentSet;
 import lombok.extern.slf4j.Slf4j;
 import schedulerproto.SchedulerOuterClass;
-
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /*
@@ -46,7 +44,6 @@ public class StrategicThread implements Runnable{
         StrategicThread strategicThread = new StrategicThread(functionName,requestInfoQueue);
         new Thread((strategicThread),"StrategicThread-"+functionName).start();
         StrategicCreateContainerThread.start(strategicThread.requestInfoQueue,strategicThread.blockRequestInfoQueue);
-//        log.info("StrategicThread start..."+"StrategicThread-"+functionName);
         System.out.println("StrategicThread start..."+"StrategicThread-"+functionName);
     }
 
@@ -66,7 +63,6 @@ public class StrategicThread implements Runnable{
                             blockRequestInfoQueue.put(requestInfo);
                             // wait
                             // 阻塞到有container可用，container来源：1.returnContainer 2.createContainer 3.提高了container的并发上限
-//                            log.info("[WAIT]{}",requestInfo);
                             lock.wait();
                         }else{
                             requestInfo.getEnd().set(true);
@@ -78,7 +74,6 @@ public class StrategicThread implements Runnable{
                                     .setContainerId(selectedContainer.getContainerId())
                                     .build());
                             requestInfo.getResponseObserver().onCompleted();
-//                            log.info("[REQUEST_FINAL]{},{}",requestInfo,selectedContainer.getContainerId());
                             logWriter.selectedContainerInfo(new SelectedContainerDTO(requestInfo.getRequestId(),selectedContainer.getContainerId()));
                             break;
                         }

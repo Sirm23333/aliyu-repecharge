@@ -46,7 +46,6 @@ public class SchedulerImp_0802 extends SchedulerImplBase {
                 responseObserver,
                 Calendar.getInstance().getTimeInMillis(),
                 new AtomicBoolean(false));
-//        log.info("[NEW_REQUEST]{}",requestInfo);
         LinkedBlockingQueue<RequestInfo> requestInfoQueue = GlobalInfo.requestQueueMap.get(request.getFunctionName());
         if(requestInfoQueue == null){
             synchronized (GlobalInfo.requestQueueMap){
@@ -69,7 +68,7 @@ public class SchedulerImp_0802 extends SchedulerImplBase {
         ContainerInfo containerInfo = GlobalInfo.containerInfoMap.get(request.getContainerId());
 
         try{
-            logWriter.containerRunInfo(new ContainerRunDTO(request.getRequestId(),request.getDurationInNanos(),request.getMaxMemoryUsageInBytes(),request.getErrorCode(),request.getErrorMessage()));
+            logWriter.containerRunInfo(new ContainerRunDTO(request.getRequestId(),request.getContainerId(),request.getDurationInNanos(),request.getMaxMemoryUsageInBytes(),request.getErrorCode(),request.getErrorMessage()));
         }catch (Exception e){
             e.printStackTrace();
         }
