@@ -53,8 +53,8 @@ public class APIClientRun {
         for(int k = 0; k < 20;k++){
             int finalK = k;
             Thread t = new Thread(()->{
-                for(int i = 0; i < 10; i++){
-                    FunctionConfig functionConfig = listFunctionsReply.getFunctionsList().get(0);
+                for(int i = 0; i < 50; i++){
+                    FunctionConfig functionConfig = listFunctionsReply.getFunctionsList().get(i % 5);
                     String e = sampleEvents.get(functionConfig.getFunctionName());
                     JSONObject event = new JSONObject();
                     event.put("functionName",functionConfig.getFunctionName());
@@ -65,6 +65,11 @@ public class APIClientRun {
                             .setEvent(ByteString.copyFromUtf8(event.toJSONString()))
                             .setFunctionName(functionConfig.getFunctionName()).build());
                     log.info("Invoke function reply "+invokeFunctionReply);
+                    try {
+                        Thread.sleep(500);
+                    } catch (InterruptedException ex) {
+                        ex.printStackTrace();
+                    }
 //            System.out.println("Invoke function reply "+invokeFunctionReply);
                 }
             });

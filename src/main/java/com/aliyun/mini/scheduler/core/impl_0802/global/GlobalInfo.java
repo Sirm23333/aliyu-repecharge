@@ -1,11 +1,16 @@
 package com.aliyun.mini.scheduler.core.impl_0802.global;
 
+import com.aliyun.mini.resourcemanager.client.ResourceManagerClient;
 import com.aliyun.mini.scheduler.core.impl_0802.model.*;
+import com.aliyun.mini.scheduler.core.impl_0802.node_container_manager.CreateContainerThread;
+import com.aliyun.mini.scheduler.core.impl_0802.node_container_manager.ReserveNodeThread;
 import io.grpc.netty.shaded.io.netty.util.internal.ConcurrentSet;
 
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
@@ -26,9 +31,17 @@ public class GlobalInfo {
 
     // functionName -> containerIds set
     public static Map<String, ConcurrentSet<String>> containerIdMap = new ConcurrentHashMap<>();
-    // function比较保守的并行能力，由synstats设置，nodeContainerManager在创建container时用来初始化containerInfo
-    public static Map<String, Integer> functionConcurrencyMap = new ConcurrentHashMap<>();
-    // functionName -> Lock 每个function一个锁
-    public static Map<String, Object> lockMap = new ConcurrentHashMap<>();
+    // functionName -> Lock 每个function一个锁 ， 用于Strategic线程与其他可以产生可用container的线性直接通信
+    public static Map<String, Object> functionLockMap = new ConcurrentHashMap<>();
+    // 创建或删除node时必须得到锁
+    public static Object nodeLock = new Object();
+
+
+    public static ExecutorService threadPool = Executors.newFixedThreadPool(64);
+    public static LinkedBlockingQueue<CreateContainerThread> createContainerThreadQueue;
+    public static LinkedBlockingQueue<ReserveNodeThread> reserveNodeThreadQueue;
+
+
+    public static ResourceManagerClient resourceManagerClient;
 
 }

@@ -2,13 +2,22 @@ package com.aliyun.mini.scheduler.core.impl_0802.strategic;
 import com.aliyun.mini.scheduler.core.impl_0802.global.GlobalInfo;
 import com.aliyun.mini.scheduler.core.impl_0802.model.ContainerInfo;
 import com.aliyun.mini.scheduler.core.impl_0802.model.RequestInfo;
+import com.java.mini.faas.ana.dto.SelectedContainerDTO;
+import com.java.mini.faas.ana.log.LogWriter;
 import io.grpc.netty.shaded.io.netty.util.internal.ConcurrentSet;
 import lombok.extern.slf4j.Slf4j;
 import schedulerproto.SchedulerOuterClass;
+
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+/*
+ *  在acquireContainer中启动
+ */
 @Slf4j
 public class StrategicThread implements Runnable{
+
+    LogWriter logWriter = LogWriter.getInstance();
 
     private String functionName;
 
@@ -16,7 +25,12 @@ public class StrategicThread implements Runnable{
 
     private ConcurrentSet<String> containerIds;
 
+     // functionLock
     private Object lock;
+
+    // 如果requestInfoQueue队头无法马上被消费，则放入blockRequestInfoQueue，
+    // 让StrategicCreateContainerThread拿到去分析是否需要创建新的container
+    private LinkedBlockingQueue<RequestInfo> blockRequestInfoQueue;
 
 
 
@@ -24,11 +38,16 @@ public class StrategicThread implements Runnable{
         this.requestInfoQueue = requestInfoQueue;
         this.functionName = functionName;
         this.containerIds = GlobalInfo.containerIdMap.get(functionName);
-        this.lock = GlobalInfo.lockMap.get(functionName);
+        this.lock = GlobalInfo.functionLockMap.get(functionName);
+        this.blockRequestInfoQueue = new LinkedBlockingQueue<>();
     }
 
     public static void start(String functionName , LinkedBlockingQueue<RequestInfo> requestInfoQueue){
-        new Thread(new StrategicThread(functionName,requestInfoQueue),"StrategicThread-"+functionName).start();
+        StrategicThread strategicThread = new StrategicThread(functionName,requestInfoQueue);
+        new Thread((strategicThread),"StrategicThread-"+functionName).start();
+        StrategicCreateContainerThread.start(strategicThread.requestInfoQueue,strategicThread.blockRequestInfoQueue);
+//        log.info("StrategicThread start..."+"StrategicThread-"+functionName);
+        System.out.println("StrategicThread start..."+"StrategicThread-"+functionName);
     }
 
     @Override
@@ -41,23 +60,26 @@ public class StrategicThread implements Runnable{
                 synchronized (lock){
                     // 选择一个最好的container
                     while(true){
-                        ContainerInfo selectContainer = getBestContainer(requestInfo);
-                        if(selectContainer == null){
+                        ContainerInfo selectedContainer = getBestContainer(requestInfo);
+                        // 没有可以用的container
+                        if(selectedContainer == null){
+                            blockRequestInfoQueue.put(requestInfo);
                             // wait
                             // 阻塞到有container可用，container来源：1.returnContainer 2.createContainer 3.提高了container的并发上限
+//                            log.info("[WAIT]{}",requestInfo);
                             lock.wait();
                         }else{
-                            selectContainer.getRequestSet().add(requestInfo.getRequestId());
-                            log.info("thread-"+functionName + " choice "+ selectContainer.getContainerId());
-                            // 下面的不知道会不会阻塞?
+                            requestInfo.getEnd().set(true);
+                            selectedContainer.getRequestSet().add(requestInfo.getRequestId());
                             requestInfo.getResponseObserver().onNext(SchedulerOuterClass.AcquireContainerReply.newBuilder()
-                                    .setNodeId(selectContainer.getNodeId())
-                                    .setNodeAddress(selectContainer.getAddress())
-                                    .setNodeServicePort(selectContainer.getPort())
-                                    .setContainerId(selectContainer.getContainerId())
+                                    .setNodeId(selectedContainer.getNodeId())
+                                    .setNodeAddress(selectedContainer.getAddress())
+                                    .setNodeServicePort(selectedContainer.getPort())
+                                    .setContainerId(selectedContainer.getContainerId())
                                     .build());
                             requestInfo.getResponseObserver().onCompleted();
-                            log.info("thread-"+functionName + " final "+ requestInfo.getRequestId());
+//                            log.info("[REQUEST_FINAL]{},{}",requestInfo,selectedContainer.getContainerId());
+                            logWriter.selectedContainerInfo(new SelectedContainerDTO(requestInfo.getRequestId(),selectedContainer.getContainerId()));
                             break;
                         }
                     }
