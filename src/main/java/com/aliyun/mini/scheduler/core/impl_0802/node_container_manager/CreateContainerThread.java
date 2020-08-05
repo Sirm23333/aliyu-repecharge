@@ -29,6 +29,7 @@ public class CreateContainerThread implements Runnable {
     public void run() {
         // 先找一个可以创建Container的node
         NodeInfo selectedNode  = null;
+        boolean cleanFlag = false; // 标识是否通知了ContainerClean线程去清理container
         while (true){
             // 如果请求已经被消费了，就不用再找node创建container了
             if(requestInfo.getEnd().get()){
@@ -48,16 +49,16 @@ public class CreateContainerThread implements Runnable {
                     // double check
                     selectedNode  = getBestNode();
                     if(selectedNode == null){
-                        // 这里不用阻塞，如果队列中没有可用的ReserveNodeThread，说明某个CreateContainerThread已经在创建node了，直接进入wait状态即可
-                        ReserveNodeThread reserveNodeThread = GlobalInfo.reserveNodeThreadQueue.poll();
-                        if(reserveNodeThread == null){
-                            try {
-                                GlobalInfo.nodeLock.wait();
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
+                        try {
+                            // 没有可用的node，不再主动创建node，而是1.等着container的清理 2.等着NodeApplyThread创建新的node 3.等着request被消费
+                            // nodeLock只能在123的情况被唤醒
+                            if(!cleanFlag){
+                                ContainerCleanThread.cleanContainerQueue.put(requestInfo);
+                                cleanFlag = true;
                             }
-                        }else{
-                            GlobalInfo.threadPool.execute(reserveNodeThread.build(requestInfo));
+                            GlobalInfo.nodeLock.wait();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
                         }
                     }
                 }
@@ -95,7 +96,8 @@ public class CreateContainerThread implements Runnable {
         ContainerInfo containerInfo = new ContainerInfo(container.getContainerId(),requestInfo.getFunctionName(),selectedNode.getNodeId(),selectedNode.getAddress(),
                 selectedNode.getPort(),requestInfo.getMemoryInBytes(),requestInfo.getMemoryInBytes() * 0.67 / (1024 * 1024 * 1024),
                 1,
-                new ConcurrentSet<>());
+                new ConcurrentSet<>(),
+                false);
         GlobalInfo.containerInfoMap.put(containerInfo.getContainerId(),containerInfo);
         ContainerStatus containerStatus = new ContainerStatus(containerInfo.getContainerId());
         GlobalInfo.containerStatusMap.put(containerStatus.getContainerId(),containerStatus);
@@ -103,6 +105,10 @@ public class CreateContainerThread implements Runnable {
         GlobalInfo.nodeInfoMap.get(selectedNode.getNodeId()).getContainerInfoMap().put(containerInfo.getContainerId(),containerInfo);
         GlobalInfo.containerIdMap.get(containerInfo.getFunctionName()).add(containerInfo.getContainerId());
         logWriter.newContainerInfo(new NewContainerDTO(requestInfo.getRequestId(),selectedNode.getNodeId(),containerInfo.getContainerId()));
+        synchronized (GlobalInfo.containerLRU){
+            GlobalInfo.containerLRU.put(containerInfo.getContainerId(),containerInfo);
+        }
+        System.out.println(requestInfo.getRequestId()+"-----");
         Object lock = GlobalInfo.functionLockMap.get(containerInfo.getFunctionName());
         synchronized (lock){
             lock.notifyAll();

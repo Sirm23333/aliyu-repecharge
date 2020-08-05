@@ -38,35 +38,40 @@ public class StrategicCreateContainerThread implements Runnable {
                 if(blockRequestInfo.getEnd().get()) {
                     // 这个请求已经被消费了
                     continue;
-                }else if(GlobalInfo.containerIdMap.get(blockRequestInfo.getFunctionName()).isEmpty()){
-                    // 如果这个function没有container，则马上创建1个container
+                }
+                else {
                     CreateContainerThread createContainerThread = GlobalInfo.createContainerThreadQueue.take();
                     GlobalInfo.threadPool.execute(createContainerThread.build(blockRequestInfo));
-                }else {
-                    // 等待超过阈值时间就创建
-                    long timeStamp = blockRequestInfo.getTimeStamp();
-                    long now = Calendar.getInstance().getTimeInMillis();
-                    if(now - timeStamp > StrategicContants.WAIT_TIME_UPPER && !blockRequestInfo.getEnd().get()){
-                        CreateContainerThread createContainerThread = GlobalInfo.createContainerThreadQueue.take();
-                        if(!blockRequestInfo.getEnd().get()){
-                            GlobalInfo.threadPool.execute(createContainerThread.build(blockRequestInfo));
-                        }else {
-                            GlobalInfo.createContainerThreadQueue.put(createContainerThread);
-                        }
-                    }else{
-                        if(now - timeStamp < StrategicContants.WAIT_TIME_UPPER){
-                            Thread.sleep(StrategicContants.WAIT_TIME_UPPER - (now - timeStamp));
-                        }
-                        if(!blockRequestInfo.getEnd().get()){
-                            CreateContainerThread createContainerThread = GlobalInfo.createContainerThreadQueue.take();
-                            if(!blockRequestInfo.getEnd().get()){
-                                GlobalInfo.threadPool.execute(createContainerThread.build(blockRequestInfo));
-                            }else {
-                                GlobalInfo.createContainerThreadQueue.put(createContainerThread);
-                            }
-                        }
-                    }
                 }
+//                else if(GlobalInfo.containerIdMap.get(blockRequestInfo.getFunctionName()).isEmpty()){
+//                    // 如果这个function没有container，则马上创建1个container
+//                    CreateContainerThread createContainerThread = GlobalInfo.createContainerThreadQueue.take();
+//                    GlobalInfo.threadPool.execute(createContainerThread.build(blockRequestInfo));
+//                }else {
+//                    // 等待超过阈值时间就创建
+//                    long timeStamp = blockRequestInfo.getTimeStamp();
+//                    long now = Calendar.getInstance().getTimeInMillis();
+//                    if(now - timeStamp > StrategicContants.WAIT_TIME_UPPER && !blockRequestInfo.getEnd().get()){
+//                        CreateContainerThread createContainerThread = GlobalInfo.createContainerThreadQueue.take();
+//                        if(!blockRequestInfo.getEnd().get()){
+//                            GlobalInfo.threadPool.execute(createContainerThread.build(blockRequestInfo));
+//                        }else {
+//                            GlobalInfo.createContainerThreadQueue.put(createContainerThread);
+//                        }
+//                    }else{
+//                        if(now - timeStamp < StrategicContants.WAIT_TIME_UPPER){
+//                            Thread.sleep(StrategicContants.WAIT_TIME_UPPER - (now - timeStamp));
+//                        }
+//                        if(!blockRequestInfo.getEnd().get()){
+//                            CreateContainerThread createContainerThread = GlobalInfo.createContainerThreadQueue.take();
+//                            if(!blockRequestInfo.getEnd().get()){
+//                                GlobalInfo.threadPool.execute(createContainerThread.build(blockRequestInfo));
+//                            }else {
+//                                GlobalInfo.createContainerThreadQueue.put(createContainerThread);
+//                            }
+//                        }
+//                    }
+//                }
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

@@ -1,0 +1,3 @@
+#### 8.5
+- 使用LinkedHashMap构建了一个container的LRU队列,Strategic线程响应请求时get一下
+- 加入一个NodeApplyThread 在系统运行时启动，直接申请MAX_NODE_NUM个node直到成功,创建node失败重试间隔改为1s，即CreateContainerThread中不再负责创建node

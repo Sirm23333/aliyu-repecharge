@@ -18,6 +18,7 @@ apiserverproto/Apiserver$ListFunctionsReply$1.class
 resourcemanagerproto/ResourceManagerOuterClass$ReserveNodeRequest$Builder.class
 nodeservoceproto/NodeServiceOuterClass$InvokeFunctionReply$Header$Value.class
 apiserverproto/Apiserver$InvokeFunctionReply$Builder.class
+com/aliyun/mini/scheduler/core/impl_0802/node_container_manager/ReleaseNodeThread.class
 com/aliyun/mini/scheduler/core/impl_0802/model/NodeInfo.class
 nodeservoceproto/NodeServiceOuterClass$InvokeFunctionRequestOrBuilder.class
 nodeservoceproto/NodeServiceOuterClass$GetStatsRequest$1.class
@@ -61,6 +62,7 @@ nodeservoceproto/NodeServiceOuterClass$GetStatsRequest.class
 apiserverproto/Apiserver$InvokeFunctionRequest$Builder.class
 schedulerproto/SchedulerOuterClass$AcquireContainerReply$1.class
 com/aliyun/mini/resourcemanager/ResourceManagerGrpc$ResourceManagerStub.class
+com/aliyun/mini/scheduler/core/impl_0802/node_container_manager/NodeApplyThread.class
 nodeservoceproto/NodeServiceOuterClass$FunctionMetaOrBuilder.class
 nodeservoceproto/NodeServiceOuterClass$InvokeFunctionReply$Header$1.class
 apiserverproto/APIServerGrpc$APIServerStub.class
@@ -155,6 +157,7 @@ resourcemanagerproto/ResourceManagerOuterClass$ReleaseNodeRequest$1.class
 com/aliyun/mini/scheduler/core/impl_0730/synstats/StatsConstans.class
 com/aliyun/mini/nodeservice/NodeServiceGrpc$NodeServiceBlockingStub.class
 schedulerproto/SchedulerGrpc$SchedulerFutureStub.class
+com/aliyun/mini/scheduler/core/impl_0802/node_container_manager/ContainerCleanThread.class
 apiserverproto/APIServerGrpc$APIServerBlockingStub.class
 apiserverproto/Apiserver$FunctionConfig.class
 resourcemanagerproto/ResourceManagerOuterClass$ReserveNodeRequest.class
@@ -201,6 +204,7 @@ com/aliyun/mini/nodeservice/NodeServiceGrpc$NodeServiceBaseDescriptorSupplier.cl
 resourcemanagerproto/ResourceManagerOuterClass$GetNodesUsageReply$1.class
 com/aliyun/mini/scheduler/core/impl_0730/SchedulerImp_0730.class
 schedulerproto/SchedulerOuterClass$ReturnContainerReply.class
+com/aliyun/mini/scheduler/core/impl_0802/node_container_manager/ContainerCleanThread$MemoryRecord.class
 com/aliyun/mini/scheduler/proto/SchedulerGrpc$MethodHandlers.class
 nodeservoceproto/NodeServiceGrpc$NodeServiceBlockingStub.class
 apiserverproto/Apiserver$InvokeFunctionRequest.class

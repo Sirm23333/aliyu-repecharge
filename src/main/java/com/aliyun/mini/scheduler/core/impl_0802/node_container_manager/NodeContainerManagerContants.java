@@ -7,7 +7,12 @@ import io.grpc.netty.shaded.io.netty.util.internal.ConcurrentSet;
  */
 public class NodeContainerManagerContants {
     // 允许创建container的并发上限
-    public static int CREATE_CONTAINER_CONCURRENT_UPPER = 5;
+    public static int CREATE_CONTAINER_CONCURRENT_UPPER = 8;
+
+    public static int REMOVE_CONTAINER_CONCURRENT_UPPER = 5;
+
     // 允许创建node的并发上限
     public static int RESERVE_NODE_CONCURRENT_UPPER = 1;
+
+    public static int MAX_NODE_NUM = 18;
 }

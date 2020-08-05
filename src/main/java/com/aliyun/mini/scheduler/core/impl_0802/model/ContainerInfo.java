@@ -24,4 +24,6 @@ public class ContainerInfo {
     private int concurrencyUpperLimit;
     // 正在使用中的requestId
     private ConcurrentSet<String> requestSet;
+
+    private boolean deleted;
 }

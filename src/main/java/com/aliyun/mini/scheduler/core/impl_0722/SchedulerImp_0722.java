@@ -201,7 +201,7 @@ public class SchedulerImp_0722 extends SchedulerImplBase {
         ContainerInfo containerInfo = functionMap.get(requestMap.get(request.getRequestId())).get(request.getContainerId());
         NodeInfo nodeInfo = nodeMap.get(containerInfo.getNodeId());
 
-        logWriter.containerRunInfo(new ContainerRunDTO(request.getRequestId(),request.getDurationInNanos(),request.getMaxMemoryUsageInBytes(),request.getErrorCode(),request.getErrorMessage()));
+        logWriter.containerRunInfo(new ContainerRunDTO(request.getRequestId(),request.getContainerId(),request.getDurationInNanos(),request.getMaxMemoryUsageInBytes(),request.getErrorCode(),request.getErrorMessage()));
 
         synchronized (containerInfo){
             containerInfo.getRequestSet().remove(request.getRequestId());

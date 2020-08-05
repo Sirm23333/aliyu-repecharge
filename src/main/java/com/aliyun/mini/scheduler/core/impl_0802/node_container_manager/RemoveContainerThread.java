@@ -16,8 +16,9 @@ public class RemoveContainerThread implements Runnable{
 
     private ContainerInfo containerInfo;
 
-    public RemoveContainerThread(ContainerInfo containerInfo){
+    public RemoveContainerThread build(ContainerInfo containerInfo){
         this.containerInfo = containerInfo;
+        return this;
     }
 
     @Override
@@ -33,9 +34,17 @@ public class RemoveContainerThread implements Runnable{
         nodeInfo.setAvailableVCPU(nodeInfo.getAvailableVCPU() + containerInfo.getVCPU());
         // 正式删除container
         GlobalInfo.nodeInfoMap.get(nodeId).getClient().removeContainer(NodeServiceOuterClass.RemoveContainerRequest.newBuilder().setContainerId(containerId).build());
+        synchronized (GlobalInfo.nodeLock){
+            GlobalInfo.nodeLock.notifyAll();
+        }
         try {
             logWriter.removeContainerInfo(new RemoveContainerDTO(containerId));
         }catch (Exception e){
+            e.printStackTrace();
+        }
+        try {
+            GlobalInfo.removeContainerThreadQueue.put(this);
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }

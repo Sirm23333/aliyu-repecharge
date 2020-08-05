@@ -54,7 +54,7 @@ public class ReserveNodeThread implements Runnable {
                 // 创建失败了
                 logWriter.reserveNodeError(new ReserveNodeErrorDTO(requestInfo.getRequestId(), e));
                 try {
-                    Thread.sleep(500);
+                    Thread.sleep(1000);
                 } catch (InterruptedException ex) {
                     ex.printStackTrace();
                 }

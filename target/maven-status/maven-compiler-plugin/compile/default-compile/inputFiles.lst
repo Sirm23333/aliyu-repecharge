@@ -5,6 +5,7 @@
 /home/sirm/文档/Project/IdeaProjects/java-mini-fass/src/main/java/com/aliyun/mini/scheduler/server/SchedulerServer.java
 /home/sirm/文档/Project/IdeaProjects/java-mini-fass/src/main/java/com/aliyun/mini/scheduler/core/impl_0802/global/GlobalInfo.java
 /home/sirm/文档/Project/IdeaProjects/java-mini-fass/src/main/java/com/aliyun/mini/nodeservice/client/NodeServiceClient.java
+/home/sirm/文档/Project/IdeaProjects/java-mini-fass/src/main/java/com/aliyun/mini/scheduler/core/impl_0802/node_container_manager/ReleaseNodeThread.java
 /home/sirm/文档/Project/IdeaProjects/java-mini-fass/target/generated-sources/protobuf/java/resourcemanagerproto/ResourceManagerOuterClass.java
 /home/sirm/文档/Project/IdeaProjects/java-mini-fass/src/main/java/com/aliyun/mini/scheduler/core/impl_0730/model/ContainerStatus.java
 /home/sirm/文档/Project/IdeaProjects/java-mini-fass/src/main/java/com/aliyun/mini/scheduler/core/impl_0802/model/RequestInfo.java
@@ -13,10 +14,12 @@
 /home/sirm/文档/Project/IdeaProjects/java-mini-fass/src/main/java/com/aliyun/mini/scheduler/core/impl_0802/strategic/StrategicContants.java
 /home/sirm/文档/Project/IdeaProjects/java-mini-fass/src/main/java/com/aliyun/mini/scheduler/core/impl_0802/model/ContainerStatus.java
 /home/sirm/文档/Project/IdeaProjects/java-mini-fass/src/main/java/com/aliyun/mini/scheduler/core/impl_0802/model/NodeInfo.java
+/home/sirm/文档/Project/IdeaProjects/java-mini-fass/src/main/java/com/aliyun/mini/scheduler/core/impl_0802/node_container_manager/NodeApplyThread.java
 /home/sirm/文档/Project/IdeaProjects/java-mini-fass/src/main/java/com/aliyun/mini/scheduler/constants/ObjectFactory.java
 /home/sirm/文档/Project/IdeaProjects/java-mini-fass/src/main/java/com/aliyun/mini/scheduler/proto/SchedulerGrpc.java
 /home/sirm/文档/Project/IdeaProjects/java-mini-fass/src/main/java/com/aliyun/mini/client/APIClient.java
 /home/sirm/文档/Project/IdeaProjects/java-mini-fass/target/generated-sources/protobuf/java/nodeservoceproto/NodeServiceOuterClass.java
+/home/sirm/文档/Project/IdeaProjects/java-mini-fass/src/main/java/com/aliyun/mini/scheduler/core/impl_0802/node_container_manager/ContainerCleanThread.java
 /home/sirm/文档/Project/IdeaProjects/java-mini-fass/src/main/java/com/aliyun/mini/resourcemanager/client/ResourceManagerClient.java
 /home/sirm/文档/Project/IdeaProjects/java-mini-fass/src/main/java/com/aliyun/mini/scheduler/core/impl_0802/node_container_manager/CreateContainerThread.java
 /home/sirm/文档/Project/IdeaProjects/java-mini-fass/target/generated-sources/protobuf/grpc-java/apiserverproto/APIServerGrpc.java

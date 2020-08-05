@@ -2,6 +2,7 @@ package com.aliyun.mini.client;
 
 import apiserverproto.Apiserver.*;
 import com.alibaba.fastjson.JSONObject;
+import com.aliyun.mini.scheduler.util.NumberUtil;
 import com.google.protobuf.ByteString;
 import lombok.extern.slf4j.Slf4j;
 
@@ -50,7 +51,7 @@ public class APIClientRun {
 //            }
 //
 //        }
-        for(int k = 0; k < 20;k++){
+        for(int k = 0; k < 100;k++){
             int finalK = k;
             Thread t = new Thread(()->{
                 for(int i = 0; i < 50; i++){

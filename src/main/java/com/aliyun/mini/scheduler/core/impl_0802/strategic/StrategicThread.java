@@ -67,6 +67,12 @@ public class StrategicThread implements Runnable{
                         }else{
                             requestInfo.getEnd().set(true);
                             selectedContainer.getRequestSet().add(requestInfo.getRequestId());
+                            synchronized (GlobalInfo.containerLRU){
+                                if(selectedContainer.isDeleted()){
+                                    continue;
+                                }
+                                GlobalInfo.containerLRU.get(selectedContainer.getContainerId());
+                            }
                             requestInfo.getResponseObserver().onNext(SchedulerOuterClass.AcquireContainerReply.newBuilder()
                                     .setNodeId(selectedContainer.getNodeId())
                                     .setNodeAddress(selectedContainer.getAddress())

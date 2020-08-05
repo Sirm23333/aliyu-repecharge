@@ -2,6 +2,7 @@ package com.aliyun.mini.scheduler.core.impl_0802;
 
 import com.aliyun.mini.scheduler.core.impl_0802.global.GlobalInfo;
 import com.aliyun.mini.scheduler.core.impl_0802.model.ContainerInfo;
+import com.aliyun.mini.scheduler.core.impl_0802.model.NodeInfo;
 import com.aliyun.mini.scheduler.core.impl_0802.model.RequestInfo;
 import com.aliyun.mini.scheduler.core.impl_0802.node_container_manager.RemoveContainerThread;
 import com.aliyun.mini.scheduler.core.impl_0802.strategic.StrategicThread;
@@ -11,6 +12,7 @@ import com.java.mini.faas.ana.dto.NewRequestDTO;
 import com.java.mini.faas.ana.log.LogWriter;
 import io.grpc.netty.shaded.io.netty.util.internal.ConcurrentSet;
 import io.grpc.stub.StreamObserver;
+import jdk.nashorn.internal.objects.Global;
 import lombok.extern.slf4j.Slf4j;
 import schedulerproto.SchedulerOuterClass.AcquireContainerReply;
 import schedulerproto.SchedulerOuterClass.AcquireContainerRequest;
@@ -35,6 +37,9 @@ public class SchedulerImp_0802 extends SchedulerImplBase {
         }catch (Exception e){
             e.printStackTrace();
         }
+//        for(NodeInfo nodeInfo : GlobalInfo.nodeInfoMap.values()){
+//            System.out.println(nodeInfo);
+//        }
 
         RequestInfo requestInfo = new RequestInfo(
                 request.getAccountId(),
@@ -77,7 +82,11 @@ public class SchedulerImp_0802 extends SchedulerImplBase {
             synchronized (containerInfo){
                 containerInfo = GlobalInfo.containerInfoMap.get(request.getContainerId());
                 if(containerInfo != null){
-                    GlobalInfo.threadPool.execute(new RemoveContainerThread(containerInfo));
+                    try {
+                        GlobalInfo.threadPool.execute(GlobalInfo.removeContainerThreadQueue.take());
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }else {

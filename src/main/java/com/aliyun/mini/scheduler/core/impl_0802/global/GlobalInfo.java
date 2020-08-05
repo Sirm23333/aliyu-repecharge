@@ -3,9 +3,12 @@ package com.aliyun.mini.scheduler.core.impl_0802.global;
 import com.aliyun.mini.resourcemanager.client.ResourceManagerClient;
 import com.aliyun.mini.scheduler.core.impl_0802.model.*;
 import com.aliyun.mini.scheduler.core.impl_0802.node_container_manager.CreateContainerThread;
+import com.aliyun.mini.scheduler.core.impl_0802.node_container_manager.RemoveContainerThread;
 import com.aliyun.mini.scheduler.core.impl_0802.node_container_manager.ReserveNodeThread;
 import io.grpc.netty.shaded.io.netty.util.internal.ConcurrentSet;
 
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -39,14 +42,21 @@ public class GlobalInfo {
     // node锁，CreateContainer时如果没有node可用，则进入nodeLock.wait()状态，其他可以产生node的线程通过nodeLock.notifyAll()唤醒
     public static Object nodeLock = new Object();
 
+    // containerId -> containerInfo 使用LinkedHashMap构建一个lru队列，当某个container使用时，就get一下，这个container就会移到队末，即队头的元素就是最需要删除的元素
+    public static Map<String,ContainerInfo> containerLRU = new LinkedHashMap<>(256,0.75f,true);
+
 
     public static ExecutorService threadPool;
     // 创建container的线程队列，拿到队列中的线程后才能创建，用于限制同时创建container的数量
     public static LinkedBlockingQueue<CreateContainerThread> createContainerThreadQueue;
+    public static LinkedBlockingQueue<RemoveContainerThread> removeContainerThreadQueue;
     // 同上
     public static LinkedBlockingQueue<ReserveNodeThread> reserveNodeThreadQueue;
 
 
+
     public static ResourceManagerClient resourceManagerClient;
+
+
 
 }
