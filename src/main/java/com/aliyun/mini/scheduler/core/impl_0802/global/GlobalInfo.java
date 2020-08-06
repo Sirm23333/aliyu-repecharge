@@ -22,8 +22,6 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 public class GlobalInfo {
 
-    // functionName -> RequestQueue
-    public static Map<String , LinkedBlockingQueue<RequestInfo>> requestQueueMap = new ConcurrentHashMap<>();
     // nodeId -> NodeInfo
     public static Map<String , NodeInfo> nodeInfoMap = new ConcurrentHashMap<>();
     // ContainerId -> ContainerInfo
@@ -53,8 +51,6 @@ public class GlobalInfo {
     public static LinkedBlockingQueue<RemoveContainerThread> removeContainerThreadQueue;
     public static LinkedBlockingQueue<ContainerCleanThread> containerCleanThreads;
     public static LinkedBlockingQueue<ReserveNodeThread> reserveNodeThreadQueue;
-
-
 
 
     public static ResourceManagerClient resourceManagerClient;

@@ -9,7 +9,8 @@ import java.util.*;
 import java.util.concurrent.Future;
 
 /**
- * 清理container线程，在没有创建container的空间时调用，按照LRU算法清理container
+ * 清理container线程
+ * 1.在没有创建container的空间时启动，按照多优先级+LRU算法清理container，为了方便，仅对执行时间小于100ms的container定为删除低优先级
  */
 public class ContainerCleanThread implements Runnable {
 

@@ -8,7 +8,9 @@ import com.java.mini.faas.ana.log.LogWriter;
 import nodeservoceproto.NodeServiceOuterClass;
 
 /**
- * returnContainer若执行失败调用启动
+ * 删除container
+ * 1.container执行异常时启动一次
+ * 2.container清理线程中启动n次
  */
 public class RemoveContainerThread implements Runnable{
 

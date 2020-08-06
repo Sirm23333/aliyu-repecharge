@@ -4,7 +4,7 @@ import com.aliyun.mini.scheduler.core.impl_0802.global.GlobalInfo;
 import com.aliyun.mini.scheduler.core.impl_0802.model.RequestInfo;
 
 /**
- * 该线程系统运行时启动，直接申请20个node直到成功
+ * 该线程系统运行时启动，直接申请MAX个node直到成功
  */
 public class NodeApplyThread implements Runnable {
 

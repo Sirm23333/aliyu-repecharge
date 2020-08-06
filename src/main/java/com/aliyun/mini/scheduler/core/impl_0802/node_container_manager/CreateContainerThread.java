@@ -38,20 +38,6 @@ public class CreateContainerThread implements Runnable {
                 break;
             }else{
                 try{
-                    // 如果没有可用的node，node数量小于MAX_NODE_MUN则创建，否则就清理container
-//                    if(!reserveNodeFlag && GlobalInfo.nodeInfoMap.size() + NodeContainerManagerContants.RESERVE_NODE_CONCURRENT_UPPER - GlobalInfo.reserveNodeThreadQueue.size() < NodeContainerManagerContants.MAX_NODE_NUM){
-//                        // 现有的node + 正在申请的node < node上限
-//                        reserveNodeFlag = true;
-//                        ReserveNodeThread reserveNodeThread = null;
-//                        reserveNodeThread = GlobalInfo.reserveNodeThreadQueue.take();
-//                        selectedNode = getBestNode();
-//                        if(selectedNode != null){
-//                            GlobalInfo.reserveNodeThreadQueue.put(reserveNodeThread);
-//                            break;
-//                        }
-//                        GlobalInfo.threadPool.execute(reserveNodeThread.build(requestInfo));
-//                    }
-                    // 如果没有可用的node 执行一次container清理
                     if(Calendar.getInstance().getTimeInMillis() - lastCleanTime > 2000){
                         lastCleanTime = Calendar.getInstance().getTimeInMillis();
                         ContainerCleanThread containerCleanThread = null;
@@ -63,9 +49,9 @@ public class CreateContainerThread implements Runnable {
                         }
                         GlobalInfo.threadPool.execute(containerCleanThread.build(requestInfo));
                     }
-                    // 1.container的清理 2.创建新的node
+
                     synchronized (GlobalInfo.nodeLock){
-                        // 2秒后如果清除失败再重试
+                        // 被唤醒：1.container的清理成功  3.过2s，如果清理失败了过两s后唤醒，重新申请清理空间
                         GlobalInfo.nodeLock.wait(2000);
                     }
                 }catch (Exception e){

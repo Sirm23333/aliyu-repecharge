@@ -2,11 +2,8 @@ package com.aliyun.mini.scheduler.core.impl_0802;
 
 import com.aliyun.mini.scheduler.core.impl_0802.global.GlobalInfo;
 import com.aliyun.mini.scheduler.core.impl_0802.model.ContainerInfo;
-import com.aliyun.mini.scheduler.core.impl_0802.model.NodeInfo;
 import com.aliyun.mini.scheduler.core.impl_0802.model.RequestInfo;
 import com.aliyun.mini.scheduler.core.impl_0802.node_container_manager.CreateContainerThread;
-import com.aliyun.mini.scheduler.core.impl_0802.node_container_manager.RemoveContainerThread;
-import com.aliyun.mini.scheduler.core.impl_0802.strategic.StrategicThread;
 import com.aliyun.mini.scheduler.proto.SchedulerGrpc.SchedulerImplBase;
 import com.java.mini.faas.ana.dto.ContainerRunDTO;
 import com.java.mini.faas.ana.dto.NewRequestDTO;
@@ -14,16 +11,13 @@ import com.java.mini.faas.ana.dto.SelectedContainerDTO;
 import com.java.mini.faas.ana.log.LogWriter;
 import io.grpc.netty.shaded.io.netty.util.internal.ConcurrentSet;
 import io.grpc.stub.StreamObserver;
-import jdk.nashorn.internal.objects.Global;
 import lombok.extern.slf4j.Slf4j;
 import schedulerproto.SchedulerOuterClass;
 import schedulerproto.SchedulerOuterClass.AcquireContainerReply;
 import schedulerproto.SchedulerOuterClass.AcquireContainerRequest;
 import schedulerproto.SchedulerOuterClass.ReturnContainerReply;
 import schedulerproto.SchedulerOuterClass.ReturnContainerRequest;
-
 import java.util.Calendar;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
@@ -64,9 +58,10 @@ public class SchedulerImp_0802 extends SchedulerImplBase {
                 }
             }
         }
-        // 有能用的container马上返回
         ContainerInfo selectedContainer ;
+        // 标志是否为这个request正在创建container，避免重复创建
         boolean createContainerFlag =false;
+        // 有能用的container马上返回，没有能用的马上创建container，但同时间创建container的数量有限
         while(true){
             selectedContainer = getBestContainer(requestInfo);
             if(selectedContainer != null){
@@ -75,7 +70,9 @@ public class SchedulerImp_0802 extends SchedulerImplBase {
                 // 没有可用的container 马上创建一个container
                 CreateContainerThread createContainerThread = null;
                 try {
+                    // 需要先拿到创建线程，如果暂时拿不到就阻塞在这
                     createContainerThread = GlobalInfo.createContainerThreadQueue.take();
+                    // 在检查一般现在有没有可以用的container，如果没有则创建
                     selectedContainer = getBestContainer(requestInfo);
                     if(selectedContainer != null){
                         GlobalInfo.createContainerThreadQueue.put(createContainerThread);
@@ -91,7 +88,7 @@ public class SchedulerImp_0802 extends SchedulerImplBase {
                 selectedContainer = getBestContainer(requestInfo);
                 if(selectedContainer == null){
                     try {
-                        // 1.创建好了新的container 2.有container return 3.提高了container的并行度
+                        // 被唤醒：1.创建好了新的container 2.有container return 3.提高了container的并行度
                         lock.wait();
                     } catch (InterruptedException e) {
                         e.printStackTrace();
@@ -176,5 +173,4 @@ public class SchedulerImp_0802 extends SchedulerImplBase {
         }
         return selectContainer;
     }
-
 }

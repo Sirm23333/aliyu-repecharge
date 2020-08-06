@@ -15,6 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 创建node直到创建成功
+ * 1.系统运行时，由NodeApplyThread启动
  */
 @Slf4j
 public class ReserveNodeThread implements Runnable {
@@ -61,9 +62,6 @@ public class ReserveNodeThread implements Runnable {
                 ex.printStackTrace();
             }
         }
-//        synchronized (GlobalInfo.nodeLock){
-//            GlobalInfo.nodeLock.notifyAll();
-//        }
         try {
             GlobalInfo.reserveNodeThreadQueue.put(this);
         } catch (InterruptedException e) {

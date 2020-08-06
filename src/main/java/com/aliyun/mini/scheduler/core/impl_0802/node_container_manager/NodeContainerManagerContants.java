@@ -1,8 +1,5 @@
 package com.aliyun.mini.scheduler.core.impl_0802.node_container_manager;
 
-/**
- *
- */
 public class NodeContainerManagerContants {
     // 允许同时创建container的最大线程数
     public static int CREATE_CONTAINER_CONCURRENT_UPPER = 10;
