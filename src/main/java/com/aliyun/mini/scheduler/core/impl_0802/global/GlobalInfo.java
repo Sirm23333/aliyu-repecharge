@@ -2,6 +2,7 @@ package com.aliyun.mini.scheduler.core.impl_0802.global;
 
 import com.aliyun.mini.resourcemanager.client.ResourceManagerClient;
 import com.aliyun.mini.scheduler.core.impl_0802.model.*;
+import com.aliyun.mini.scheduler.core.impl_0802.node_container_manager.ContainerCleanThread;
 import com.aliyun.mini.scheduler.core.impl_0802.node_container_manager.CreateContainerThread;
 import com.aliyun.mini.scheduler.core.impl_0802.node_container_manager.RemoveContainerThread;
 import com.aliyun.mini.scheduler.core.impl_0802.node_container_manager.ReserveNodeThread;
@@ -50,7 +51,7 @@ public class GlobalInfo {
     // 创建container的线程队列，拿到队列中的线程后才能创建，用于限制同时创建container的数量
     public static LinkedBlockingQueue<CreateContainerThread> createContainerThreadQueue;
     public static LinkedBlockingQueue<RemoveContainerThread> removeContainerThreadQueue;
-    // 同上
+    public static LinkedBlockingQueue<ContainerCleanThread> containerCleanThreads;
     public static LinkedBlockingQueue<ReserveNodeThread> reserveNodeThreadQueue;
 
 

@@ -8,6 +8,8 @@ import com.java.mini.faas.ana.log.LogWriter;
 import io.grpc.netty.shaded.io.netty.util.internal.ConcurrentSet;
 import lombok.extern.slf4j.Slf4j;
 import nodeservoceproto.NodeServiceOuterClass.*;
+
+import java.util.Calendar;
 import java.util.UUID;
 
 /**
@@ -29,53 +31,47 @@ public class CreateContainerThread implements Runnable {
     public void run() {
         // 先找一个可以创建Container的node
         NodeInfo selectedNode  = null;
-        boolean cleanFlag = false; // 标识是否通知了ContainerClean线程去清理container
+        long lastCleanTime = 0; // 上一次清除时间
+        boolean reserveNodeFlag = false; // 标识是否正在为这个request创建node
         while (true){
-            // 如果请求已经被消费了，就不用再找node创建container了
-            if(requestInfo.getEnd().get()){
-                try {
-                    GlobalInfo.createContainerThreadQueue.put(this);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                return;
-            }
             selectedNode = getBestNode();
             if(selectedNode != null){
                 break;
             }else{
-                // 没有可以用的node，申请一个node?等待?这里先直接申请
-                synchronized (GlobalInfo.nodeLock){
-                    // double check
-                    selectedNode  = getBestNode();
-                    if(selectedNode == null){
-                        try {
-                            // 没有可用的node，不再主动创建node，而是1.等着container的清理 2.等着NodeApplyThread创建新的node 3.等着request被消费
-                            // nodeLock只能在123的情况被唤醒
-                            if(!cleanFlag){
-                                ContainerCleanThread.cleanContainerQueue.put(requestInfo);
-                                cleanFlag = true;
-                            }
-                            GlobalInfo.nodeLock.wait();
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
+                try{
+                    // 如果没有可用的node，node数量小于MAX_NODE_MUN则创建，否则就清理container
+                    if(!reserveNodeFlag && GlobalInfo.nodeInfoMap.size() + NodeContainerManagerContants.RESERVE_NODE_CONCURRENT_UPPER - GlobalInfo.reserveNodeThreadQueue.size() < NodeContainerManagerContants.MAX_NODE_NUM){
+                        // 现有的node + 正在申请的node < node上限
+                        reserveNodeFlag = true;
+                        ReserveNodeThread reserveNodeThread = null;
+                        reserveNodeThread = GlobalInfo.reserveNodeThreadQueue.take();
+                        selectedNode = getBestNode();
+                        if(selectedNode != null){
+                            GlobalInfo.reserveNodeThreadQueue.put(reserveNodeThread);
+                            break;
                         }
+                        GlobalInfo.threadPool.execute(reserveNodeThread.build(requestInfo));
+                    }else if(Calendar.getInstance().getTimeInMillis() - lastCleanTime > 2000){
+                        lastCleanTime = Calendar.getInstance().getTimeInMillis();
+                        ContainerCleanThread containerCleanThread = null;
+                        containerCleanThread = GlobalInfo.containerCleanThreads.take();
+                        selectedNode = getBestNode();
+                        if(selectedNode != null){
+                            GlobalInfo.containerCleanThreads.put(containerCleanThread);
+                            break;
+                        }
+                        GlobalInfo.threadPool.execute(containerCleanThread.build(requestInfo));
                     }
+                    // 1.container的清理 2.创建新的node
+                    synchronized (GlobalInfo.nodeLock){
+                        // 2秒后如果清除失败再重试
+                        GlobalInfo.nodeLock.wait(2000);
+                    }
+                }catch (Exception e){
+                    e.printStackTrace();
                 }
+
             }
-        }
-        // 如果request已经被消费了，那么不再创建container，返还预拿的node的memory
-        if(requestInfo.getEnd().get()){
-            synchronized (selectedNode){
-                selectedNode.setAvailableMemInBytes(selectedNode.getAvailableMemInBytes() + requestInfo.getMemoryInBytes());
-                selectedNode.setAvailableVCPU(selectedNode.getAvailableVCPU() + requestInfo.getMemoryInBytes() * 0.67 / (1024 * 1024 * 1024));
-            }
-            try {
-                GlobalInfo.createContainerThreadQueue.put(this);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            return;
         }
         // 创建container
         CreateContainerReply container = null;
@@ -93,11 +89,15 @@ public class CreateContainerThread implements Runnable {
             e.printStackTrace();
             logWriter.createContainerError(new CreateContainerErrorDTO(requestInfo.getRequestId(),e));
         }
-        ContainerInfo containerInfo = new ContainerInfo(container.getContainerId(),requestInfo.getFunctionName(),selectedNode.getNodeId(),selectedNode.getAddress(),
-                selectedNode.getPort(),requestInfo.getMemoryInBytes(),requestInfo.getMemoryInBytes() * 0.67 / (1024 * 1024 * 1024),
-                1,
-                new ConcurrentSet<>(),
-                false);
+        ContainerInfo containerInfo = new ContainerInfo(
+                container.getContainerId(),
+                requestInfo.getFunctionName(),
+                selectedNode.getNodeId(),
+                selectedNode.getAddress(),
+                selectedNode.getPort(),
+                requestInfo.getMemoryInBytes(),
+                requestInfo.getMemoryInBytes() * 0.67 / (1024 * 1024 * 1024),
+                1);
         GlobalInfo.containerInfoMap.put(containerInfo.getContainerId(),containerInfo);
         ContainerStatus containerStatus = new ContainerStatus(containerInfo.getContainerId());
         GlobalInfo.containerStatusMap.put(containerStatus.getContainerId(),containerStatus);
@@ -108,7 +108,6 @@ public class CreateContainerThread implements Runnable {
         synchronized (GlobalInfo.containerLRU){
             GlobalInfo.containerLRU.put(containerInfo.getContainerId(),containerInfo);
         }
-        System.out.println(requestInfo.getRequestId()+"-----");
         Object lock = GlobalInfo.functionLockMap.get(containerInfo.getFunctionName());
         synchronized (lock){
             lock.notifyAll();

@@ -14,7 +14,7 @@ import resourcemanagerproto.ResourceManagerOuterClass.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 创建node 有可能创建失败 要在createContainer中判断是否重新创建
+ * 创建node直到创建成功
  */
 @Slf4j
 public class ReserveNodeThread implements Runnable {
@@ -34,38 +34,40 @@ public class ReserveNodeThread implements Runnable {
     public void run() {
         NodeInfo newNodeInfo;
         ReserveNodeReply reserveNodeReply;
-        synchronized (GlobalInfo.nodeLock) {
+        try {
+            logWriter.readyToReserveNode(new ReadyToReserveNodeDTO(requestInfo.getRequestId()));
+            reserveNodeReply = resourceManager.reserveNode(ReserveNodeRequest.newBuilder().build());
+            NodeServiceClient nodeServiceClient = NodeServiceClient.New(reserveNodeReply.getNode().getAddress() + ":" + reserveNodeReply.getNode().getNodeServicePort());
+            newNodeInfo = new NodeInfo(reserveNodeReply.getNode().getId(),
+                    reserveNodeReply.getNode().getAddress(),
+                    reserveNodeReply.getNode().getNodeServicePort(),
+                    reserveNodeReply.getNode().getMemoryInBytes(),
+                    reserveNodeReply.getNode().getMemoryInBytes() * 0.67 / (1024 * 1024 * 1024),
+                    nodeServiceClient,
+                    new ConcurrentHashMap<>());
+            GlobalInfo.nodeInfoMap.put(newNodeInfo.getNodeId(), newNodeInfo);
+            NodeStatus nodeStatus = new NodeStatus(newNodeInfo.getNodeId());
+            GlobalInfo.nodeStatusMap.put(nodeStatus.getNodeId(), nodeStatus);
+            logWriter.newNodeInfo(new NewNodeDTO(requestInfo.getRequestId(), newNodeInfo.getNodeId(), newNodeInfo.getAddress(), newNodeInfo.getPort()));
+        } catch (Exception e) {
+            // 创建失败了
+            logWriter.reserveNodeError(new ReserveNodeErrorDTO(requestInfo.getRequestId(), e));
             try {
-                logWriter.readyToReserveNode(new ReadyToReserveNodeDTO(requestInfo.getRequestId()));
-                reserveNodeReply = resourceManager.reserveNode(ReserveNodeRequest.newBuilder().build());
-                NodeServiceClient nodeServiceClient = NodeServiceClient.New(reserveNodeReply.getNode().getAddress() + ":" + reserveNodeReply.getNode().getNodeServicePort());
-                newNodeInfo = new NodeInfo(reserveNodeReply.getNode().getId(),
-                        reserveNodeReply.getNode().getAddress(),
-                        reserveNodeReply.getNode().getNodeServicePort(),
-                        reserveNodeReply.getNode().getMemoryInBytes(),
-                        reserveNodeReply.getNode().getMemoryInBytes() * 0.67 / (1024 * 1024 * 1024),
-                        nodeServiceClient,
-                        new ConcurrentHashMap<>());
-                GlobalInfo.nodeInfoMap.put(newNodeInfo.getNodeId(), newNodeInfo);
-                NodeStatus nodeStatus = new NodeStatus(newNodeInfo.getNodeId());
-                GlobalInfo.nodeStatusMap.put(nodeStatus.getNodeId(), nodeStatus);
-                logWriter.newNodeInfo(new NewNodeDTO(requestInfo.getRequestId(), newNodeInfo.getNodeId(), newNodeInfo.getAddress(), newNodeInfo.getPort()));
-            } catch (Exception e) {
-                // 创建失败了
-                logWriter.reserveNodeError(new ReserveNodeErrorDTO(requestInfo.getRequestId(), e));
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException ex) {
-                    ex.printStackTrace();
-                }
-            }finally {
-                GlobalInfo.nodeLock.notifyAll();
+                Thread.sleep(1000);
+                run();
+                return;
+            } catch (InterruptedException ex) {
+                ex.printStackTrace();
             }
+        }
+        synchronized (GlobalInfo.nodeLock){
+            GlobalInfo.nodeLock.notifyAll();
         }
         try {
             GlobalInfo.reserveNodeThreadQueue.put(this);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
     }
 }

@@ -61,8 +61,15 @@ public class InitRun {
                 e.printStackTrace();
             }
         }
-        NodeApplyThread.start();
-        ContainerCleanThread.start();
+
+        GlobalInfo.containerCleanThreads = new LinkedBlockingQueue<>();
+        for(int i = 0; i < NodeContainerManagerContants.CLEAN_CONTAINER_CONCURRENT_UPPER;i++){
+            try {
+                GlobalInfo.containerCleanThreads.put(new ContainerCleanThread());
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
 
 
     }

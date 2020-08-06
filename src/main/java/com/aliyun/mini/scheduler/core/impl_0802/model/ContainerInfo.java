@@ -8,8 +8,6 @@ import lombok.NoArgsConstructor;
 import java.util.Set;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class ContainerInfo {
     private String containerId;
     private String functionName;
@@ -22,8 +20,26 @@ public class ContainerInfo {
     private double vCPU;
     // 并行数上限
     private int concurrencyUpperLimit;
-    // 正在使用中的requestId
-    private ConcurrentSet<String> requestSet;
 
-    private boolean deleted;
+    // 正在使用中的requestId
+    private ConcurrentSet<String> requestSet = new ConcurrentSet<>();
+    // 是否已经被删除
+    private boolean deleted = false;
+    // 使用这个container的次数
+    private int useCnt = 0;
+    // 平均使用时间,ms
+    private double avgDuration = 0;
+    // 标记清除次数，如果avgDuration小于一个阈值(CONTAINER_CLEAN_AVG_DURATION_LOWER)，则清除时需要标记多次(CONTAINER_CLEAN_SIGN_CNT)
+    private int signCleanCnt = 0;
+
+    public ContainerInfo(String containerId, String functionName, String nodeId, String address, long port, long memoryInBytes, double vCPU, int concurrencyUpperLimit) {
+        this.containerId = containerId;
+        this.functionName = functionName;
+        this.nodeId = nodeId;
+        this.address = address;
+        this.port = port;
+        this.memoryInBytes = memoryInBytes;
+        this.vCPU = vCPU;
+        this.concurrencyUpperLimit = concurrencyUpperLimit;
+    }
 }
