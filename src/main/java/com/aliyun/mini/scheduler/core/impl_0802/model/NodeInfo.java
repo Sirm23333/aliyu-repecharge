@@ -22,4 +22,6 @@ public class NodeInfo {
     private NodeServiceClient client;
     // 现加载的container,ContainerId -> ContainerInfo
     private ConcurrentHashMap<String, ContainerInfo> containerInfoMap;
+    // functionName -> containerNum
+    private ConcurrentHashMap<String,Integer> containerNumMap;
 }

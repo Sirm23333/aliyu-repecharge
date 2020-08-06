@@ -56,6 +56,7 @@ public class GlobalInfo {
 
 
 
+
     public static ResourceManagerClient resourceManagerClient;
 
 

@@ -44,6 +44,7 @@ public class ReserveNodeThread implements Runnable {
                     reserveNodeReply.getNode().getMemoryInBytes(),
                     reserveNodeReply.getNode().getMemoryInBytes() * 0.67 / (1024 * 1024 * 1024),
                     nodeServiceClient,
+                    new ConcurrentHashMap<>(),
                     new ConcurrentHashMap<>());
             GlobalInfo.nodeInfoMap.put(newNodeInfo.getNodeId(), newNodeInfo);
             NodeStatus nodeStatus = new NodeStatus(newNodeInfo.getNodeId());
@@ -60,9 +61,9 @@ public class ReserveNodeThread implements Runnable {
                 ex.printStackTrace();
             }
         }
-        synchronized (GlobalInfo.nodeLock){
-            GlobalInfo.nodeLock.notifyAll();
-        }
+//        synchronized (GlobalInfo.nodeLock){
+//            GlobalInfo.nodeLock.notifyAll();
+//        }
         try {
             GlobalInfo.reserveNodeThreadQueue.put(this);
         } catch (InterruptedException e) {

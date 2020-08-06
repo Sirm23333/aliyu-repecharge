@@ -71,6 +71,8 @@ public class InitRun {
             }
         }
 
+        NodeApplyThread.start();
+
 
     }
 
