@@ -1,6 +1,7 @@
 package com.aliyun.mini.scheduler.core.impl_0802.global;
 
 import com.aliyun.mini.resourcemanager.client.ResourceManagerClient;
+import com.aliyun.mini.scheduler.core.impl_0802.monitor.NodeMonitorThread;
 import com.aliyun.mini.scheduler.core.impl_0802.node_container_manager.*;
 
 import java.io.FileNotFoundException;
@@ -72,7 +73,7 @@ public class InitRun {
         }
 
         NodeApplyThread.start();
-
+        NodeMonitorThread.start();
 
     }
 

@@ -2,6 +2,7 @@ package com.aliyun.mini.scheduler.core.impl_0802;
 
 import com.aliyun.mini.scheduler.core.impl_0802.global.GlobalInfo;
 import com.aliyun.mini.scheduler.core.impl_0802.model.ContainerInfo;
+import com.aliyun.mini.scheduler.core.impl_0802.model.FunctionStatistics;
 import com.aliyun.mini.scheduler.core.impl_0802.model.RequestInfo;
 import com.aliyun.mini.scheduler.core.impl_0802.node_container_manager.CreateContainerThread;
 import com.aliyun.mini.scheduler.proto.SchedulerGrpc.SchedulerImplBase;
@@ -55,6 +56,7 @@ public class SchedulerImp_0802 extends SchedulerImplBase {
                     lock = new Object();
                     GlobalInfo.containerIdMap.put(request.getFunctionName(),new ConcurrentSet<>());
                     GlobalInfo.functionLockMap.put(request.getFunctionName(),lock);
+                    GlobalInfo.functionStatisticsMap.put(request.getFunctionName(),new FunctionStatistics(request.getFunctionName()));
                 }
             }
         }
@@ -156,19 +158,27 @@ public class SchedulerImp_0802 extends SchedulerImplBase {
     private ContainerInfo  getBestContainer(RequestInfo requestInfo){
         ConcurrentSet<String> containerIds = GlobalInfo.containerIdMap.get(requestInfo.getFunctionName());
         ContainerInfo selectContainer = null,tmpContainer;
-        for(String containerId : containerIds){
-            tmpContainer = GlobalInfo.containerInfoMap.get(containerId);
-            // 只根据并行上限指定container
-            if(tmpContainer.getRequestSet().size() < tmpContainer.getConcurrencyUpperLimit() && !tmpContainer.isDeleted()){
-                synchronized (tmpContainer){
-                    if(tmpContainer.getRequestSet().size() < tmpContainer.getConcurrencyUpperLimit() && !tmpContainer.isDeleted()){
-                        tmpContainer.getRequestSet().add(requestInfo.getRequestId());
-                        tmpContainer.setUseCnt(tmpContainer.getUseCnt() + 1);
-                        tmpContainer.setSignCleanCnt(0);
-                        selectContainer = tmpContainer;
-                        break;
+        double minCpu = Double.MAX_VALUE;
+        synchronized (containerIds){
+            for(String containerId : containerIds){
+                tmpContainer = GlobalInfo.containerInfoMap.get(containerId);
+                // 选择node cpu使用最小的container
+                if(tmpContainer.getRequestSet().size() < tmpContainer.getConcurrencyUpperLimit() && !tmpContainer.isDeleted()){
+                    synchronized (tmpContainer){
+                        if(tmpContainer.getRequestSet().size() < tmpContainer.getConcurrencyUpperLimit() && !tmpContainer.isDeleted()){
+                            double cpu = GlobalInfo.nodeStatusMap.get(tmpContainer.getNodeId()).getCpuUsagePctHistory().getLast();
+                            if(cpu < minCpu){
+                                minCpu = cpu;
+                                selectContainer = tmpContainer;
+                            }
+                        }
                     }
                 }
+            }
+            if(selectContainer != null){
+                selectContainer.getRequestSet().add(requestInfo.getRequestId());
+                selectContainer.setUseCnt(selectContainer.getUseCnt() + 1);
+                selectContainer.setSignCleanCnt(0);
             }
         }
         return selectContainer;

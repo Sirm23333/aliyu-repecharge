@@ -52,9 +52,8 @@ public class GlobalInfo {
     public static LinkedBlockingQueue<ContainerCleanThread> containerCleanThreads;
     public static LinkedBlockingQueue<ReserveNodeThread> reserveNodeThreadQueue;
 
-
     public static ResourceManagerClient resourceManagerClient;
 
-
+    public static Map<String,FunctionStatistics> functionStatisticsMap = new ConcurrentHashMap<>();
 
 }

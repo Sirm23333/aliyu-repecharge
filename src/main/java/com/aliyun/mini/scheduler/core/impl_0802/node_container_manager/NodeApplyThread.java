@@ -1,6 +1,7 @@
 package com.aliyun.mini.scheduler.core.impl_0802.node_container_manager;
 
 import com.aliyun.mini.scheduler.core.impl_0802.global.GlobalInfo;
+import com.aliyun.mini.scheduler.core.impl_0802.model.FunctionStatistics;
 import com.aliyun.mini.scheduler.core.impl_0802.model.RequestInfo;
 
 /**
@@ -29,6 +30,20 @@ public class NodeApplyThread implements Runnable {
             RequestInfo fakeRequest = new RequestInfo();
             fakeRequest.setRequestId("fake request");
             GlobalInfo.threadPool.execute(reserveNodeThread.build(fakeRequest));
+        }
+        try{
+            for(int i = 0; i < 6; i++){
+                try {
+                    Thread.sleep(120000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                for(FunctionStatistics functionStatistics : GlobalInfo.functionStatisticsMap.values()){
+                    System.out.println("[FUNCTION_INFO]"+functionStatistics);
+                }
+            }
+        }catch (Exception e){
+            e.printStackTrace();
         }
     }
 }

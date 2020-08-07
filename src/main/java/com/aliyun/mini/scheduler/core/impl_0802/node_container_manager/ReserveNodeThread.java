@@ -5,6 +5,8 @@ import com.aliyun.mini.scheduler.core.impl_0802.global.GlobalInfo;
 import com.aliyun.mini.scheduler.core.impl_0802.model.NodeInfo;
 import com.aliyun.mini.scheduler.core.impl_0802.model.NodeStatus;
 import com.aliyun.mini.scheduler.core.impl_0802.model.RequestInfo;
+import com.aliyun.mini.scheduler.core.impl_0802.monitor.MonitorConstants;
+import com.aliyun.mini.scheduler.core.impl_0802.monitor.NodeMonitorThread;
 import com.java.mini.faas.ana.dto.NewNodeDTO;
 import com.java.mini.faas.ana.dto.ReadyToReserveNodeDTO;
 import com.java.mini.faas.ana.dto.ReserveNodeErrorDTO;
@@ -48,8 +50,10 @@ public class ReserveNodeThread implements Runnable {
                     new ConcurrentHashMap<>(),
                     new ConcurrentHashMap<>());
             GlobalInfo.nodeInfoMap.put(newNodeInfo.getNodeId(), newNodeInfo);
-            NodeStatus nodeStatus = new NodeStatus(newNodeInfo.getNodeId());
+            NodeStatus nodeStatus = new NodeStatus(newNodeInfo.getNodeId(),nodeServiceClient);
             GlobalInfo.nodeStatusMap.put(nodeStatus.getNodeId(), nodeStatus);
+            // 加入监控
+            NodeMonitorThread.addNode(nodeStatus);
             logWriter.newNodeInfo(new NewNodeDTO(requestInfo.getRequestId(), newNodeInfo.getNodeId(), newNodeInfo.getAddress(), newNodeInfo.getPort()));
         } catch (Exception e) {
             // 创建失败了
