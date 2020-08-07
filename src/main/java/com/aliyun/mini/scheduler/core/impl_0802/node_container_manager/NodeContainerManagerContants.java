@@ -16,7 +16,7 @@ public class NodeContainerManagerContants {
     // 低优先级清除的container需要标记CONTAINER_CLEAN_SIGN_CNT次才可以被删除
     public static int CONTAINER_CLEAN_SIGN_CNT_LOWER = 10;
 
-//    // 允许同时创建container的最大线程数
+    // 允许同时创建container的最大线程数
 //    public static int CREATE_CONTAINER_CONCURRENT_UPPER = 4;
 //    // 允许同时删除container的最大线程数
 //    public static int REMOVE_CONTAINER_CONCURRENT_UPPER = 4;

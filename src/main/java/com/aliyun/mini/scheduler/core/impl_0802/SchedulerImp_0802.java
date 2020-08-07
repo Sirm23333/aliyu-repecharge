@@ -3,6 +3,7 @@ package com.aliyun.mini.scheduler.core.impl_0802;
 import com.aliyun.mini.scheduler.core.impl_0802.global.GlobalInfo;
 import com.aliyun.mini.scheduler.core.impl_0802.model.ContainerInfo;
 import com.aliyun.mini.scheduler.core.impl_0802.model.FunctionStatistics;
+import com.aliyun.mini.scheduler.core.impl_0802.model.NodeStatus;
 import com.aliyun.mini.scheduler.core.impl_0802.model.RequestInfo;
 import com.aliyun.mini.scheduler.core.impl_0802.node_container_manager.CreateContainerThread;
 import com.aliyun.mini.scheduler.proto.SchedulerGrpc.SchedulerImplBase;
@@ -138,6 +139,9 @@ public class SchedulerImp_0802 extends SchedulerImplBase {
         }else {
             synchronized (containerInfo){
                 containerInfo.getRequestSet().remove(request.getRequestId());
+                NodeStatus nodeStatus = GlobalInfo.nodeStatusMap.get(containerInfo.getNodeId());
+                nodeStatus.setEstimateCPU(nodeStatus.getCpuUsagePctHistory().getLast());
+                nodeStatus.setEstimateMem(nodeStatus.getMemoryUsageInBytesHistory().getLast());
                 double avg = containerInfo.getAvgDuration();
                 containerInfo.setAvgDuration( avg + ((double) request.getDurationInNanos() / 1000000 - avg) / containerInfo.getUseCnt() );
             }
@@ -158,7 +162,8 @@ public class SchedulerImp_0802 extends SchedulerImplBase {
     private ContainerInfo  getBestContainer(RequestInfo requestInfo){
         ConcurrentSet<String> containerIds = GlobalInfo.containerIdMap.get(requestInfo.getFunctionName());
         ContainerInfo selectContainer = null,tmpContainer;
-        double minCpu = Double.MAX_VALUE;
+        double minScore = Double.MAX_VALUE;
+
         synchronized (containerIds){
             for(String containerId : containerIds){
                 tmpContainer = GlobalInfo.containerInfoMap.get(containerId);
@@ -166,9 +171,10 @@ public class SchedulerImp_0802 extends SchedulerImplBase {
                 if(tmpContainer.getRequestSet().size() < tmpContainer.getConcurrencyUpperLimit() && !tmpContainer.isDeleted()){
                     synchronized (tmpContainer){
                         if(tmpContainer.getRequestSet().size() < tmpContainer.getConcurrencyUpperLimit() && !tmpContainer.isDeleted()){
-                            double cpu = GlobalInfo.nodeStatusMap.get(tmpContainer.getNodeId()).getCpuUsagePctHistory().getLast();
-                            if(cpu < minCpu){
-                                minCpu = cpu;
+                            double score = 0.7 * GlobalInfo.nodeStatusMap.get(tmpContainer.getNodeId()).getEstimateCPU() / 200
+                                    + 0.3 * GlobalInfo.nodeStatusMap.get(tmpContainer.getNodeId()).getEstimateMem() / (1024 * 1024 * 1024 * 2);
+                            if(score < minScore){
+                                minScore = score;
                                 selectContainer = tmpContainer;
                             }
                         }
@@ -176,6 +182,12 @@ public class SchedulerImp_0802 extends SchedulerImplBase {
                 }
             }
             if(selectContainer != null){
+                GlobalInfo.nodeStatusMap.get(selectContainer.getNodeId())
+                        .setEstimateCPU(GlobalInfo.nodeStatusMap.get(selectContainer.getNodeId()).getEstimateCPU()
+                                + GlobalInfo.functionStatisticsMap.get(selectContainer.getFunctionName()).getAvgCpu());
+                GlobalInfo.nodeStatusMap.get(selectContainer.getNodeId())
+                        .setEstimateMem(GlobalInfo.nodeStatusMap.get(selectContainer.getNodeId()).getEstimateMem()
+                                + (long)GlobalInfo.functionStatisticsMap.get(selectContainer.getFunctionName()).getAvgMem());
                 selectContainer.getRequestSet().add(requestInfo.getRequestId());
                 selectContainer.setUseCnt(selectContainer.getUseCnt() + 1);
                 selectContainer.setSignCleanCnt(0);

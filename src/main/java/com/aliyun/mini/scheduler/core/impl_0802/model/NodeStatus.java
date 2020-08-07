@@ -26,6 +26,10 @@ public class NodeStatus {
     private ArrayDeque<Double> cpuUsagePctHistory = new ArrayDeque<>(MonitorConstants.SAVE_NODE_STATS_CYC_CNT);
     // containerId -> ContainerStats
     private Map<String , ContainerStatus> containerStatusMap = new HashMap<>();
+    // 预估的mem和cpu，用于分配container使用，在container返回时会校对为真实值
+    private long estimateMem;
+    private double estimateCPU;
+
     private NodeServiceClient nodeServiceClient;
 
     public NodeStatus(String nodeId, NodeServiceClient nodeServiceClient) {
