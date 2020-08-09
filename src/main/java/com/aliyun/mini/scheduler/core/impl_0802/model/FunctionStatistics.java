@@ -7,6 +7,8 @@ import lombok.Data;
 @Data
 public class FunctionStatistics {
     private String functionName;
+    private long memoryInBytes;
+    private double vCPU;
     // 内存采样次数
     private int memSampCnt = 0;
     // 内存使用均值 单位byte
@@ -28,8 +30,29 @@ public class FunctionStatistics {
     // 最大cpu消耗
     private double maxCpu = 0;
 
-    public FunctionStatistics(String functionName){
+    // 延迟采样次数
+    private int delayTimeSampCnt = 0;
+    //最大延迟时间
+    private long maxDelayTime = 0;
+    //最小延迟时间
+    private long minDelayTime = Long.MAX_VALUE;
+    //平均延迟时间
+    private long avgDelayTime = 0;
+    // 延迟采样次数
+    private int useTimeSampCnt = 0;
+    //最大执行时间
+    private long maxUseTime = 0;
+    //最小执行时间
+    private long minUseTime = Long.MAX_VALUE;
+    //平均执行时间
+    private long avgUseTime = 0;
+
+    private int parallelism = 1;
+
+    public FunctionStatistics(String functionName,long memoryInBytes){
         this.functionName = functionName;
+        this.memoryInBytes = memoryInBytes;
+        this.vCPU = memoryInBytes * 0.67 / (1024 * 1024 * 1024);
     }
     public void appendMemSamp(long mem){
         memSampCnt++;
@@ -44,5 +67,17 @@ public class FunctionStatistics {
         avgSqCpu += (cpu * cpu - avgSqCpu) / cpuSampCnt;
         sCpu = avgSqCpu - avgCpu * avgCpu;
         maxCpu = Math.max(maxCpu,cpu);
+    }
+    public void appendDelaySamp(long time) {
+        delayTimeSampCnt++;
+        maxDelayTime = Math.max(maxDelayTime, time);
+        minDelayTime = Math.min(minDelayTime, time);
+        avgDelayTime += (time - avgDelayTime) / delayTimeSampCnt;
+    }
+    public void appendUseTime(long time) {
+        useTimeSampCnt++;
+        maxUseTime = Math.max(maxUseTime, time);
+        minUseTime = Math.min(minUseTime, time);
+        avgUseTime += (time - avgUseTime) / useTimeSampCnt;
     }
 }

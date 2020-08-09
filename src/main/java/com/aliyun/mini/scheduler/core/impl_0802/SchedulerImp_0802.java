@@ -30,7 +30,7 @@ public class SchedulerImp_0802 extends SchedulerImplBase {
     @Override
     public void acquireContainer(AcquireContainerRequest request,
                                  StreamObserver<AcquireContainerReply> responseObserver) {
-
+        long start  = System.nanoTime();
         try{
             logWriter.newRequestInfo(new NewRequestDTO(request.getRequestId(),request.getFunctionName(),request.getFunctionConfig().getMemoryInBytes(),request.getFunctionConfig().getTimeoutInMs()));
         }catch (Exception e){
@@ -57,7 +57,7 @@ public class SchedulerImp_0802 extends SchedulerImplBase {
                     lock = new Object();
                     GlobalInfo.containerIdMap.put(request.getFunctionName(),new ConcurrentSet<>());
                     GlobalInfo.functionLockMap.put(request.getFunctionName(),lock);
-                    GlobalInfo.functionStatisticsMap.put(request.getFunctionName(),new FunctionStatistics(request.getFunctionName()));
+                    GlobalInfo.functionStatisticsMap.put(request.getFunctionName(),new FunctionStatistics(request.getFunctionName(),requestInfo.getMemoryInBytes()));
                 }
             }
         }
@@ -104,6 +104,8 @@ public class SchedulerImp_0802 extends SchedulerImplBase {
         synchronized (GlobalInfo.containerLRU){
             GlobalInfo.containerLRU.get(selectedContainer.getContainerId());
         }
+        GlobalInfo.functionStatisticsMap.get(request.getFunctionName()).appendDelaySamp(System.nanoTime() - start);
+        GlobalInfo.useStartMap_Tmp.put(selectedContainer.getContainerId(),System.nanoTime());
         responseObserver.onNext(SchedulerOuterClass.AcquireContainerReply.newBuilder()
                 .setNodeId(selectedContainer.getNodeId())
                 .setNodeAddress(selectedContainer.getAddress())
@@ -119,12 +121,13 @@ public class SchedulerImp_0802 extends SchedulerImplBase {
                                 StreamObserver<ReturnContainerReply> responseObserver) {
         ContainerInfo containerInfo = GlobalInfo.containerInfoMap.get(request.getContainerId());
         try{
+            GlobalInfo.functionStatisticsMap.get(GlobalInfo.containerInfoMap.get(request.getContainerId()).getFunctionName()).appendUseTime(System.nanoTime() - GlobalInfo.useStartMap_Tmp.get(request.getContainerId()));
             logWriter.containerRunInfo(new ContainerRunDTO(request.getRequestId(),request.getContainerId(),request.getDurationInNanos(),request.getMaxMemoryUsageInBytes(),request.getErrorCode(),request.getErrorMessage()));
         }catch (Exception e){
             e.printStackTrace();
         }
-        // 运行异常，删除container
-        if(containerRunException(request) && containerInfo != null){
+        // 运行异常或者被标记需要删除，删除container
+        if(containerRunException(request) && containerInfo != null || containerInfo.isDeleted()){
             synchronized (containerInfo){
                 containerInfo = GlobalInfo.containerInfoMap.get(request.getContainerId());
                 if(containerInfo != null){
@@ -172,7 +175,7 @@ public class SchedulerImp_0802 extends SchedulerImplBase {
                     synchronized (tmpContainer){
                         if(tmpContainer.getRequestSet().size() < tmpContainer.getConcurrencyUpperLimit() && !tmpContainer.isDeleted()){
                             double score = 0.7 * GlobalInfo.nodeStatusMap.get(tmpContainer.getNodeId()).getEstimateCPU() / 200
-                                    + 0.3 * GlobalInfo.nodeStatusMap.get(tmpContainer.getNodeId()).getEstimateMem() / (1024 * 1024 * 1024 * 2);
+                                    + 0.3 * GlobalInfo.nodeStatusMap.get(tmpContainer.getNodeId()).getEstimateMem() / (1024 * 1024 * 1024 * 3);
                             if(score < minScore){
                                 minScore = score;
                                 selectContainer = tmpContainer;

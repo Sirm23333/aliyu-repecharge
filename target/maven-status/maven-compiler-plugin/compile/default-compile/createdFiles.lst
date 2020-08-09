@@ -23,6 +23,7 @@ com/aliyun/mini/scheduler/core/impl_0802/node_container_manager/ReleaseNodeThrea
 com/aliyun/mini/scheduler/core/impl_0802/model/NodeInfo.class
 nodeservoceproto/NodeServiceOuterClass$InvokeFunctionRequestOrBuilder.class
 nodeservoceproto/NodeServiceOuterClass$GetStatsRequest$1.class
+com/aliyun/mini/scheduler/core/impl_0802/monitor/ContainerUpdateThread.class
 com/aliyun/mini/apiserver/APIServerGrpc$APIServerMethodDescriptorSupplier.class
 nodeservoceproto/NodeServiceOuterClass$InvokeFunctionReply$Header$Value$Builder.class
 nodeservoceproto/NodeServiceOuterClass$ContainerStats$1.class

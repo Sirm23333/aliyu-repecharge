@@ -56,4 +56,6 @@ public class GlobalInfo {
 
     public static Map<String,FunctionStatistics> functionStatisticsMap = new ConcurrentHashMap<>();
 
+    public static Map<String,Long> useStartMap_Tmp = new ConcurrentHashMap<>();
+
 }

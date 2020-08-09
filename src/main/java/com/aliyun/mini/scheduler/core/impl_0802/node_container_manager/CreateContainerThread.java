@@ -84,7 +84,7 @@ public class CreateContainerThread implements Runnable {
                 selectedNode.getPort(),
                 requestInfo.getMemoryInBytes(),
                 requestInfo.getMemoryInBytes() * 0.67 / (1024 * 1024 * 1024),
-                1);
+                GlobalInfo.functionStatisticsMap.get(requestInfo.getFunctionName()).getParallelism());
         GlobalInfo.containerInfoMap.put(containerInfo.getContainerId(),containerInfo);
         ContainerStatus containerStatus = new ContainerStatus(containerInfo.getContainerId(),containerInfo.getFunctionName());
         GlobalInfo.containerStatusMap.put(containerStatus.getContainerId(),containerStatus);

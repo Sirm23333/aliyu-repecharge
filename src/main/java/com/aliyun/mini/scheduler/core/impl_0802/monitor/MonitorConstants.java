@@ -8,4 +8,6 @@ public class MonitorConstants {
     public static final long SYN_NODE_STATS_CYC = 80;
     // 保存近几个周期的nodeStats信息
     public static final int SAVE_NODE_STATS_CYC_CNT = 600;
+
+    public static final long UPDATA_CONTAINER_CYC = 60000;
 }
