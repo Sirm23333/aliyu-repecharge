@@ -7,6 +7,7 @@
 /home/sirm/文档/Project/IdeaProjects/java-mini-fass/src/main/java/com/aliyun/mini/nodeservice/client/NodeServiceClient.java
 /home/sirm/文档/Project/IdeaProjects/java-mini-fass/src/main/java/com/aliyun/mini/scheduler/core/impl_0802/node_container_manager/ReleaseNodeThread.java
 /home/sirm/文档/Project/IdeaProjects/java-mini-fass/target/generated-sources/protobuf/java/resourcemanagerproto/ResourceManagerOuterClass.java
+/home/sirm/文档/Project/IdeaProjects/java-mini-fass/src/main/java/com/aliyun/mini/scheduler/core/impl_0802/node_container_manager/NodeFragmentOrderThread.java
 /home/sirm/文档/Project/IdeaProjects/java-mini-fass/src/main/java/com/aliyun/mini/scheduler/core/impl_0730/model/ContainerStatus.java
 /home/sirm/文档/Project/IdeaProjects/java-mini-fass/src/main/java/com/aliyun/mini/scheduler/core/impl_0802/model/RequestInfo.java
 /home/sirm/文档/Project/IdeaProjects/java-mini-fass/src/main/java/com/aliyun/mini/scheduler/core/impl_0730/model/ContainerInfo.java

@@ -22,12 +22,16 @@ public class ContainerUpdateThread implements Runnable {
         while (true){
             for(Map.Entry entry : GlobalInfo.functionStatisticsMap.entrySet()){
                 FunctionStatistics functionStatistics = (FunctionStatistics) entry.getValue();
+                if(functionStatistics.getCpuSampCnt() > 100 && functionStatistics.getAvgCpu() < 1 && (double)functionStatistics.getAvgUseTime() / 1000000 < 20){
+                    functionStatistics.setChoiceType(1);
+                }
+//                if(functionStatistics.getCpuSampCnt() > 200 && functionStatistics.getAvgCpu() < 1 && functionStatistics.getParallelism() == 1){
                 if(functionStatistics.getCpuSampCnt() > 500 && functionStatistics.getAvgCpu() < 0.1 && functionStatistics.getParallelism() == 1){
                     System.out.println("[TO_UPDATE_CONTAINER]"+functionStatistics);
                     int containerNum = GlobalInfo.containerIdMap.get(functionStatistics.getFunctionName()).size();
                     double cpuUse = functionStatistics.getMaxCpu();
                     double memUse = functionStatistics.getMaxMem();
-                    int para = Math.min((int)(functionStatistics.getMemoryInBytes() * 0.7 / memUse ), (int)(functionStatistics.getVCPU() * 100 * 0.7 / cpuUse));
+                    int para = Math.min((int)(functionStatistics.getMemoryInBytes() * 0.8 / memUse ), (int)(functionStatistics.getVCPU() * 100 * 0.8 / cpuUse));
                     if(para > 1){
                         // 要保留的container数量
                         int retainContainerNum = containerNum / para + 1;

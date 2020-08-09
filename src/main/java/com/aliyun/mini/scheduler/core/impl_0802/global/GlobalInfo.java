@@ -16,6 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  *
@@ -57,5 +58,10 @@ public class GlobalInfo {
     public static Map<String,FunctionStatistics> functionStatisticsMap = new ConcurrentHashMap<>();
 
     public static Map<String,Long> useStartMap_Tmp = new ConcurrentHashMap<>();
+
+    // 正在创建某个function的container的数量
+    public static Map<String, AtomicInteger> creatingContainerNumMap = new ConcurrentHashMap<>();
+    // 正在等待container创建的request数量
+    public static Map<String,AtomicInteger> waitingCreateContainerNumMap = new ConcurrentHashMap<>();
 
 }

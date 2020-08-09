@@ -95,6 +95,10 @@ public class CreateContainerThread implements Runnable {
         synchronized (GlobalInfo.containerLRU){
             GlobalInfo.containerLRU.put(containerInfo.getContainerId(),containerInfo);
         }
+        GlobalInfo.creatingContainerNumMap.get(requestInfo.getFunctionName()).getAndDecrement();
+        GlobalInfo.waitingCreateContainerNumMap.get(requestInfo.getFunctionName())
+                .set(GlobalInfo.waitingCreateContainerNumMap.get(requestInfo.getFunctionName()).get()
+                    -GlobalInfo.functionStatisticsMap.get(requestInfo.getFunctionName()).getParallelism());
         Object lock = GlobalInfo.functionLockMap.get(containerInfo.getFunctionName());
         synchronized (lock){
             lock.notifyAll();

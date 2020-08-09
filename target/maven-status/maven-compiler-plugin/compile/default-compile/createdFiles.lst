@@ -137,6 +137,7 @@ apiserverproto/Apiserver$ListFunctionsRequest$Builder.class
 apiserverproto/Apiserver$ListFunctionsRequest.class
 com/aliyun/mini/resourcemanager/ResourceManagerGrpc$ResourceManagerFileDescriptorSupplier.class
 resourcemanagerproto/ResourceManagerOuterClass$ReserveNodeRequestOrBuilder.class
+com/aliyun/mini/scheduler/core/impl_0802/node_container_manager/NodeFragmentOrderThread.class
 nodeservoceproto/NodeServiceOuterClass$NodeStats$Builder.class
 schedulerproto/SchedulerOuterClass$FunctionConfig$Builder.class
 com/aliyun/mini/nodeservice/NodeServiceGrpc.class

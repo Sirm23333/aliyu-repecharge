@@ -48,6 +48,8 @@ public class FunctionStatistics {
     private long avgUseTime = 0;
 
     private int parallelism = 1;
+    // 0为最优匹配原则，1为最先匹配原则
+    private int choiceType = 0;
 
     public FunctionStatistics(String functionName,long memoryInBytes){
         this.functionName = functionName;
