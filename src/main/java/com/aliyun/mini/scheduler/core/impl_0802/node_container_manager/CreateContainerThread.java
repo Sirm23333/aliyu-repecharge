@@ -99,6 +99,9 @@ public class CreateContainerThread implements Runnable {
         GlobalInfo.waitingCreateContainerNumMap.get(requestInfo.getFunctionName())
                 .set(GlobalInfo.waitingCreateContainerNumMap.get(requestInfo.getFunctionName()).get()
                     -GlobalInfo.functionStatisticsMap.get(requestInfo.getFunctionName()).getParallelism());
+        if(GlobalInfo.waitingCreateContainerNumMap.get(requestInfo.getFunctionName()).get() < 0){
+            GlobalInfo.waitingCreateContainerNumMap.get(requestInfo.getFunctionName()).set(0);
+        }
         Object lock = GlobalInfo.functionLockMap.get(containerInfo.getFunctionName());
         synchronized (lock){
             lock.notifyAll();

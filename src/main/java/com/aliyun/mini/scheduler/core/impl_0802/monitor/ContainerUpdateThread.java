@@ -33,6 +33,7 @@ public class ContainerUpdateThread implements Runnable {
                     double memUse = functionStatistics.getMaxMem();
                     int para = Math.min((int)(functionStatistics.getMemoryInBytes() * 0.8 / memUse ), (int)(functionStatistics.getVCPU() * 100 * 0.8 / cpuUse));
                     if(para > 1){
+                        functionStatistics.setParallelism(para);
                         // 要保留的container数量
                         int retainContainerNum = containerNum / para + 1;
                         int cnt = 0;

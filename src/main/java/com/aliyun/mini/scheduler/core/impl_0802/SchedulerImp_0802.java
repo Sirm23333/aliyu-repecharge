@@ -77,7 +77,7 @@ public class SchedulerImp_0802 extends SchedulerImplBase {
                 AtomicInteger wait = GlobalInfo.waitingCreateContainerNumMap.get(requestInfo.getFunctionName());
                 AtomicInteger create = GlobalInfo.creatingContainerNumMap.get(requestInfo.getFunctionName());
                 int waitNum = wait.getAndIncrement(); // 等待创建container的请求中，自己的排位
-                if(waitNum == GlobalInfo.functionStatisticsMap.get(requestInfo.getFunctionName()).getParallelism() * create.get()){
+                if(waitNum % GlobalInfo.functionStatisticsMap.get(requestInfo.getFunctionName()).getParallelism() == 0){
                     create.getAndIncrement();
                     CreateContainerThread createContainerThread = null;
                     try {

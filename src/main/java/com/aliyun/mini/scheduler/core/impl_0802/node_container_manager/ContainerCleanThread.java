@@ -24,6 +24,7 @@ public class ContainerCleanThread implements Runnable {
     }
     @Override
     public void run() {
+        System.out.println("start clean container..."+requestInfo);
         // 记录在一次清理中，每个node将会清理出的内存
         Map<String,MemoryRecord> nodeCleanMemory = new HashMap<>();
         long needMemory = requestInfo.getMemoryInBytes();
