@@ -55,12 +55,12 @@ public class SchedulerImp_0802 extends SchedulerImplBase {
             synchronized (GlobalInfo.functionLockMap){
                 lock = GlobalInfo.functionLockMap.get(request.getFunctionName());
                 if(lock == null){
-                    lock = new Object();
                     GlobalInfo.containerIdMap.put(request.getFunctionName(),new ConcurrentSet<>());
-                    GlobalInfo.functionLockMap.put(request.getFunctionName(),lock);
                     GlobalInfo.functionStatisticsMap.put(request.getFunctionName(),new FunctionStatistics(request.getFunctionName(),requestInfo.getMemoryInBytes()));
                     GlobalInfo.creatingContainerNumMap.put(request.getFunctionName(),new AtomicInteger(0));
                     GlobalInfo.waitingCreateContainerNumMap.put(request.getFunctionName(),new AtomicInteger(0));
+                    lock = new Object();
+                    GlobalInfo.functionLockMap.put(request.getFunctionName(),lock);
                 }
             }
         }
