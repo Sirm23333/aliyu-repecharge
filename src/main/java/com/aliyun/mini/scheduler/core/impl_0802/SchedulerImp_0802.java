@@ -150,7 +150,7 @@ public class SchedulerImp_0802 extends SchedulerImplBase {
         }else {
             synchronized (containerInfo){
                 containerInfo.getRequestSet().remove(request.getRequestId());
-                containerInfo.getChoiceTmpCnt().getAndDecrement();
+                containerInfo.getChoiceTmpCnt().set(containerInfo.getRequestSet().size());
                 NodeStatus nodeStatus = GlobalInfo.nodeStatusMap.get(containerInfo.getNodeId());
                 nodeStatus.setEstimateCPU(nodeStatus.getCpuUsagePctHistory().getLast());
                 nodeStatus.setEstimateMem(nodeStatus.getMemoryUsageInBytesHistory().getLast());

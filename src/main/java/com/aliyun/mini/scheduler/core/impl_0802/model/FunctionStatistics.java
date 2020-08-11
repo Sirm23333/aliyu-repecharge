@@ -1,4 +1,5 @@
 package com.aliyun.mini.scheduler.core.impl_0802.model;
+import com.aliyun.mini.scheduler.core.impl_0802.monitor.ContainerUpdateThread;
 import lombok.Data;
 
 /**
@@ -46,8 +47,10 @@ public class FunctionStatistics {
     private long minUseTime = Long.MAX_VALUE;
     //平均执行时间
     private long avgUseTime = 0;
-
+    // 函数的可并行度
     private int parallelism = 1;
+    // 是否已经提交了更改并行度的任务
+    private boolean submitUpdateParaWork = false;
     // 0为最优匹配原则，1为最先匹配原则
     private int choiceType = 0;
 
@@ -69,6 +72,10 @@ public class FunctionStatistics {
         avgSqCpu += (cpu * cpu - avgSqCpu) / cpuSampCnt;
         sCpu = avgSqCpu - avgCpu * avgCpu;
         maxCpu = Math.max(maxCpu,cpu);
+        if(!submitUpdateParaWork && cpuSampCnt > 500 && avgCpu < 0.1){
+            submitUpdateParaWork = true;
+            ContainerUpdateThread.submit(new ContainerUpdateThread.ContainerUpdateWork(1,this));
+        }
     }
     public void appendDelaySamp(long time) {
         delayTimeSampCnt++;
@@ -81,5 +88,8 @@ public class FunctionStatistics {
         maxUseTime = Math.max(maxUseTime, time);
         minUseTime = Math.min(minUseTime, time);
         avgUseTime += (time - avgUseTime) / useTimeSampCnt;
+        if((double)avgUseTime / 1000000 < 20 && choiceType == 0 && cpuSampCnt > 100 && avgCpu < 1){
+            choiceType = 1;
+        }
     }
 }

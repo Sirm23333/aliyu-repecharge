@@ -3,15 +3,23 @@ package com.aliyun.mini.scheduler.core.impl_0802.monitor;
 import com.aliyun.mini.scheduler.core.impl_0802.global.GlobalInfo;
 import com.aliyun.mini.scheduler.core.impl_0802.model.ContainerInfo;
 import com.aliyun.mini.scheduler.core.impl_0802.model.FunctionStatistics;
-import com.aliyun.mini.scheduler.core.impl_0802.node_container_manager.ContainerCleanThread;
-
-import java.util.Map;
+import lombok.AllArgsConstructor;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * 更改并行度，删除多余container
  */
 public class ContainerUpdateThread implements Runnable {
 
+    private static LinkedBlockingQueue<ContainerUpdateWork> containerUpdateWorks = new LinkedBlockingQueue<>();
+
+    public static void submit(ContainerUpdateWork work){
+        try {
+            containerUpdateWorks.put(work);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
     public static void start(){
         new Thread(new ContainerUpdateThread()).start();
         System.out.println("ContainerUpdateThread start...");
@@ -19,14 +27,14 @@ public class ContainerUpdateThread implements Runnable {
 
     @Override
     public void run() {
-        while (true){
-            for(Map.Entry entry : GlobalInfo.functionStatisticsMap.entrySet()){
-                FunctionStatistics functionStatistics = (FunctionStatistics) entry.getValue();
-                if(functionStatistics.getCpuSampCnt() > 100 && functionStatistics.getAvgCpu() < 1 && (double)functionStatistics.getAvgUseTime() / 1000000 < 20){
-                    functionStatistics.setChoiceType(1);
-                }
-//                if(functionStatistics.getCpuSampCnt() > 200 && functionStatistics.getAvgCpu() < 1 && functionStatistics.getParallelism() == 1){
-                if(functionStatistics.getCpuSampCnt() > 500 && functionStatistics.getAvgCpu() < 0.1 && functionStatistics.getParallelism() == 1){
+
+        while(true){
+            try {
+                ContainerUpdateWork work = containerUpdateWorks.take();
+                int flag = work.flag;
+                FunctionStatistics functionStatistics = work.functionStatistics;
+                if (flag == 1){
+                    // 提高函数的并行度
                     System.out.println("[TO_UPDATE_CONTAINER]"+functionStatistics);
                     int containerNum = GlobalInfo.containerIdMap.get(functionStatistics.getFunctionName()).size();
                     double cpuUse = functionStatistics.getMaxCpu();
@@ -42,6 +50,7 @@ public class ContainerUpdateThread implements Runnable {
                             if(cnt < retainContainerNum){
                                 synchronized (containerInfo){
                                     containerInfo.setConcurrencyUpperLimit(para);
+                                    containerInfo.getChoiceTmpCnt().set(containerInfo.getRequestSet().size());
                                 }
                             }else {
                                 synchronized (containerInfo){
@@ -63,13 +72,15 @@ public class ContainerUpdateThread implements Runnable {
                         System.out.println("[UPDATE_CONTAINER]"+"para="+para+","+"retain="+retainContainerNum+",delete="+(containerNum - retainContainerNum));
                     }
                 }
-            }
-
-            try {
-                Thread.sleep(MonitorConstants.UPDATA_CONTAINER_CYC);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
+    }
+    @AllArgsConstructor
+    public static class ContainerUpdateWork{
+        // 1:可并行，需要调整并行上限
+        int flag;
+        FunctionStatistics functionStatistics;
     }
 }

@@ -87,6 +87,7 @@ schedulerproto/SchedulerOuterClass$1.class
 resourcemanagerproto/ResourceManagerGrpc$ResourceManagerBaseDescriptorSupplier.class
 com/aliyun/mini/scheduler/core/impl_0730/model/RequestInfo.class
 nodeservoceproto/NodeServiceGrpc.class
+com/aliyun/mini/scheduler/core/impl_0802/monitor/ContainerUpdateThread$ContainerUpdateWork.class
 nodeservoceproto/NodeServiceOuterClass$ContainerStatsOrBuilder.class
 schedulerproto/SchedulerGrpc$SchedulerFileDescriptorSupplier.class
 resourcemanagerproto/ResourceManagerOuterClass$ReserveNodeReplyOrBuilder.class

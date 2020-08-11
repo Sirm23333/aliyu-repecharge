@@ -17,7 +17,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class InitRun {
 
     static {
-
 //        String path = "/aliyuncnpc/scheduler/log/application.log";
 //        FileOutputStream puts = null;
 //        try {
@@ -28,7 +27,6 @@ public class InitRun {
 //        PrintStream out = new PrintStream(puts);
 //        System.setOut(out);
 //        System.setErr(out);
-
 
         GlobalInfo.resourceManagerClient = ResourceManagerClient.New();
         GlobalInfo.threadPool = Executors.newFixedThreadPool(64);
