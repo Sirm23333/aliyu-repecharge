@@ -76,7 +76,7 @@ public class CreateContainerThread implements Runnable {
                             .setName(requestInfo.getFunctionName()+ UUID.randomUUID())
                             .setFunctionMeta(FunctionMeta.newBuilder()
                                     .setFunctionName(requestInfo.getFunctionName())
-                                    .setMemoryInBytes(requestInfo.getMemoryInBytes())
+                                    .setMemoryInBytes(requestInfo.getMemoryInBytes() * 2)
                                     .setTimeoutInMs(requestInfo.getTimeOutInMs())
                                     .setHandler(requestInfo.getFunctionHandler()).build()).build());
         }catch (Exception e){
