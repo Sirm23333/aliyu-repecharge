@@ -14,6 +14,7 @@ import com.java.mini.faas.ana.log.LogWriter;
 import lombok.extern.slf4j.Slf4j;
 import resourcemanagerproto.ResourceManagerOuterClass.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * 创建node直到创建成功
@@ -48,7 +49,8 @@ public class ReserveNodeThread implements Runnable {
                     reserveNodeReply.getNode().getMemoryInBytes() * 0.67 / (1024 * 1024 * 1024),
                     nodeServiceClient,
                     new ConcurrentHashMap<>(),
-                    new ConcurrentHashMap<>());
+                    new ConcurrentHashMap<>(),
+                    new AtomicInteger(0));
             GlobalInfo.nodeInfoMap.put(newNodeInfo.getNodeId(), newNodeInfo);
             NodeStatus nodeStatus = new NodeStatus(newNodeInfo.getNodeId(),nodeServiceClient);
             GlobalInfo.nodeStatusMap.put(nodeStatus.getNodeId(), nodeStatus);

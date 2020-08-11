@@ -72,7 +72,7 @@ public class SchedulerImp_0802 extends SchedulerImplBase {
             selectedContainer = getBestContainer(requestInfo);
             if(selectedContainer != null){
                 break;
-            } else if(!createContainerFlag){
+            } else if(!createContainerFlag && !GlobalInfo.functionStatisticsMap.get(requestInfo.getFunctionName()).isCpuIntensive()){
                 createContainerFlag = true;
                 AtomicInteger wait = GlobalInfo.waitingCreateContainerNumMap.get(requestInfo.getFunctionName());
                 AtomicInteger create = GlobalInfo.creatingContainerNumMap.get(requestInfo.getFunctionName());
@@ -156,6 +156,9 @@ public class SchedulerImp_0802 extends SchedulerImplBase {
                 nodeStatus.setEstimateMem(nodeStatus.getMemoryUsageInBytesHistory().getLast());
                 double avg = containerInfo.getAvgDuration();
                 containerInfo.setAvgDuration( avg + ((double) request.getDurationInNanos() / 1000000 - avg) / containerInfo.getUseCnt() );
+                if(GlobalInfo.functionStatisticsMap.get(containerInfo.getFunctionName()).isCpuIntensive()){
+                    GlobalInfo.nodeInfoMap.get(containerInfo.getNodeId()).getCpuIntensiveNum().set(0);
+                }
             }
             Object lock = GlobalInfo.functionLockMap.get(containerInfo.getFunctionName());
             synchronized (lock){
@@ -176,8 +179,42 @@ public class SchedulerImp_0802 extends SchedulerImplBase {
         ContainerInfo selectContainer = null,tmpContainer;
         double minScore = Double.MAX_VALUE;
         FunctionStatistics functionStatistics = GlobalInfo.functionStatisticsMap.get(requestInfo.getFunctionName());
-        if(functionStatistics.getChoiceType() == 1 ){
-            // 非cpu密集 直接优先匹配原则分配
+        if(functionStatistics.isCpuIntensive()){
+            System.out.println("cpu intensive get container"+requestInfo);
+            // 如果是cpu密集型，每个node仅可以同时执行1个此类函数
+            synchronized (containerIds){
+                for(String containerId : containerIds){
+                    tmpContainer = GlobalInfo.containerInfoMap.get(containerId);
+                    // 选择node cpu使用最小的container
+                    if(tmpContainer.getRequestSet().size() < tmpContainer.getConcurrencyUpperLimit() && !tmpContainer.isDeleted()
+                            && GlobalInfo.nodeInfoMap.get(tmpContainer.getNodeId()).getCpuIntensiveNum().get() < 1){
+                        synchronized (tmpContainer){
+                            if(tmpContainer.getRequestSet().size() < tmpContainer.getConcurrencyUpperLimit() && !tmpContainer.isDeleted()){
+                                double score = 0.7 * GlobalInfo.nodeStatusMap.get(tmpContainer.getNodeId()).getEstimateCPU() / 200
+                                        + 0.3 * GlobalInfo.nodeStatusMap.get(tmpContainer.getNodeId()).getEstimateMem() / (1024 * 1024 * 1024 * 3);
+                                if(score < minScore){
+                                    minScore = score;
+                                    selectContainer = tmpContainer;
+                                }
+                            }
+                        }
+                    }
+                }
+                if(selectContainer != null){
+                    GlobalInfo.nodeStatusMap.get(selectContainer.getNodeId())
+                            .setEstimateCPU(GlobalInfo.nodeStatusMap.get(selectContainer.getNodeId()).getEstimateCPU()
+                                    + GlobalInfo.functionStatisticsMap.get(selectContainer.getFunctionName()).getAvgCpu());
+                    GlobalInfo.nodeStatusMap.get(selectContainer.getNodeId())
+                            .setEstimateMem(GlobalInfo.nodeStatusMap.get(selectContainer.getNodeId()).getEstimateMem()
+                                    + (long)GlobalInfo.functionStatisticsMap.get(selectContainer.getFunctionName()).getAvgMem());
+                    selectContainer.getRequestSet().add(requestInfo.getRequestId());
+                    selectContainer.setUseCnt(selectContainer.getUseCnt() + 1);
+                    selectContainer.setSignCleanCnt(0);
+                    GlobalInfo.nodeInfoMap.get(selectContainer.getNodeId()).getCpuIntensiveNum().set(1);
+                }
+            }
+        }else if(functionStatistics.getChoiceType() == 1 ){
+            // 小函数 直接优先匹配原则分配
             for(String containerId : containerIds){
                 tmpContainer = GlobalInfo.containerInfoMap.get(containerId);
                 if(tmpContainer.getChoiceTmpCnt().getAndIncrement() < tmpContainer.getConcurrencyUpperLimit() &&  !tmpContainer.isDeleted()){

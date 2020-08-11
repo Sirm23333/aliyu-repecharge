@@ -211,6 +211,7 @@ schedulerproto/SchedulerOuterClass$ReturnContainerReply.class
 com/aliyun/mini/scheduler/core/impl_0802/node_container_manager/ContainerCleanThread$MemoryRecord.class
 com/aliyun/mini/scheduler/proto/SchedulerGrpc$MethodHandlers.class
 nodeservoceproto/NodeServiceGrpc$NodeServiceBlockingStub.class
+com/aliyun/mini/scheduler/core/impl_0802/forecast/ForecastService.class
 apiserverproto/Apiserver$InvokeFunctionRequest.class
 schedulerproto/SchedulerGrpc.class
 com/aliyun/mini/constants/GlobalContain.class
@@ -258,6 +259,7 @@ apiserverproto/APIServerGrpc$1.class
 nodeservoceproto/NodeServiceGrpc$MethodHandlers.class
 com/aliyun/mini/resourcemanager/ResourceManagerGrpc.class
 nodeservoceproto/NodeServiceGrpc$1.class
+com/aliyun/mini/scheduler/core/impl_0802/model/RequestRecord.class
 nodeservoceproto/NodeServiceOuterClass$InvokeFunctionRequest.class
 schedulerproto/SchedulerOuterClass$AcquireContainerReplyOrBuilder.class
 com/aliyun/mini/apiserver/APIServerGrpc.class

@@ -51,8 +51,11 @@ public class FunctionStatistics {
     private int parallelism = 1;
     // 是否已经提交了更改并行度的任务
     private boolean submitUpdateParaWork = false;
+    // 是否已经提交了判断为计算密集型的任务
+    private boolean submitUpdateCPUTypeWork = false;
     // 0为最优匹配原则，1为最先匹配原则
     private int choiceType = 0;
+    private boolean isCpuIntensive = false;
 
     public FunctionStatistics(String functionName,long memoryInBytes){
         this.functionName = functionName;
@@ -75,6 +78,11 @@ public class FunctionStatistics {
         if(!submitUpdateParaWork && cpuSampCnt > 500 && avgCpu < 0.1){
             submitUpdateParaWork = true;
             ContainerUpdateThread.submit(new ContainerUpdateThread.ContainerUpdateWork(1,this));
+        }
+        if(!submitUpdateCPUTypeWork && cpuSampCnt > 200 && avgCpu > 1){
+            submitUpdateCPUTypeWork = true;
+            isCpuIntensive = true;
+            ContainerUpdateThread.submit(new ContainerUpdateThread.ContainerUpdateWork(2,this));
         }
     }
     public void appendDelaySamp(long time) {

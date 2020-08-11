@@ -21,11 +21,18 @@ public class CreateContainerThread implements Runnable {
 
     private RequestInfo requestInfo;
 
-    public CreateContainerThread build(RequestInfo requestInfo){
+    private NodeInfo nodeInfo;
+
+    public CreateContainerThread build(RequestInfo requestInfo,NodeInfo nodeInfo){
         this.requestInfo = requestInfo;
+        this.nodeInfo = nodeInfo;
         return this;
     }
-
+    public CreateContainerThread build(RequestInfo requestInfo){
+        this.requestInfo = requestInfo;
+        this.nodeInfo = null;
+        return this;
+    }
     @Override
     public void run() {
         // 先找一个可以创建Container的node
@@ -84,7 +91,8 @@ public class CreateContainerThread implements Runnable {
                 selectedNode.getPort(),
                 requestInfo.getMemoryInBytes(),
                 requestInfo.getMemoryInBytes() * 0.67 / (1024 * 1024 * 1024),
-                GlobalInfo.functionStatisticsMap.get(requestInfo.getFunctionName()).getParallelism());
+                GlobalInfo.functionStatisticsMap.get(requestInfo.getFunctionName()).getParallelism(),
+                requestInfo);
         GlobalInfo.containerInfoMap.put(containerInfo.getContainerId(),containerInfo);
         ContainerStatus containerStatus = new ContainerStatus(containerInfo.getContainerId(),containerInfo.getFunctionName());
         GlobalInfo.containerStatusMap.put(containerStatus.getContainerId(),containerStatus);
@@ -114,6 +122,12 @@ public class CreateContainerThread implements Runnable {
     }
 
     private NodeInfo getBestNode(){
+        if(nodeInfo != null){
+            nodeInfo.setAvailableMemInBytes(nodeInfo.getAvailableMemInBytes() - requestInfo.getMemoryInBytes());
+            nodeInfo.setAvailableVCPU(nodeInfo.getAvailableVCPU() - requestInfo.getMemoryInBytes() * 0.67 / (1024 * 1024 * 1024));
+            nodeInfo.getContainerNumMap().put(requestInfo.getFunctionName(),GlobalInfo.nodeInfoMap.get(nodeInfo.getNodeId()).getContainerNumMap().getOrDefault(nodeInfo,0) + 1);
+            return nodeInfo;
+        }
         // 找一个相同function少的可用节点
         // function数量相同，选内存最少的
         NodeInfo selectedNode = null;

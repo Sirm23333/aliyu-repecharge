@@ -14,6 +14,7 @@ public class ContainerInfo {
     private String functionName;
     private String nodeId;
     private String address;
+    private RequestInfo requestInfo;
     private long port;
     // 该容器的内存上限
     private long memoryInBytes;
@@ -38,7 +39,7 @@ public class ContainerInfo {
     private long lastUseTimeStamp = Long.MAX_VALUE;
 
 
-    public ContainerInfo(String containerId, String functionName, String nodeId, String address, long port, long memoryInBytes, double vCPU, int concurrencyUpperLimit) {
+    public ContainerInfo(String containerId, String functionName, String nodeId, String address, long port, long memoryInBytes, double vCPU, int concurrencyUpperLimit,RequestInfo requestInfo) {
         this.containerId = containerId;
         this.functionName = functionName;
         this.nodeId = nodeId;
@@ -47,5 +48,6 @@ public class ContainerInfo {
         this.memoryInBytes = memoryInBytes;
         this.vCPU = vCPU;
         this.concurrencyUpperLimit = concurrencyUpperLimit;
+        this.requestInfo = requestInfo;
     }
 }

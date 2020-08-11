@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Data
 @AllArgsConstructor
@@ -24,4 +25,6 @@ public class NodeInfo {
     private ConcurrentHashMap<String, ContainerInfo> containerInfoMap;
     // functionName -> containerNum
     private ConcurrentHashMap<String,Integer> containerNumMap;
+
+    private AtomicInteger cpuIntensiveNum ;
 }
