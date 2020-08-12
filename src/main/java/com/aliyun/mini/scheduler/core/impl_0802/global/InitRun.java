@@ -17,16 +17,16 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class InitRun {
 
     static {
-        String path = "/aliyuncnpc/scheduler/log/application.log";
-        FileOutputStream puts = null;
-        try {
-            puts = new FileOutputStream(path,true);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        PrintStream out = new PrintStream(puts);
-        System.setOut(out);
-        System.setErr(out);
+//        String path = "/aliyuncnpc/scheduler/log/application.log";
+//        FileOutputStream puts = null;
+//        try {
+//            puts = new FileOutputStream(path,true);
+//        } catch (FileNotFoundException e) {
+//            e.printStackTrace();
+//        }
+//        PrintStream out = new PrintStream(puts);
+//        System.setOut(out);
+//        System.setErr(out);
 
         GlobalInfo.resourceManagerClient = ResourceManagerClient.New();
         GlobalInfo.threadPool = Executors.newFixedThreadPool(64);
@@ -75,6 +75,15 @@ public class InitRun {
         for(int i = 0; i < NodeContainerManagerContants.RELEASE_NODE_CONCURRENT_UPPER;i++){
             try {
                 GlobalInfo.releaseNodeThreadQueue.put(new ReleaseNodeThread());
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        GlobalInfo.containerMoveThreadQueue = new LinkedBlockingQueue<>();
+        for(int i = 0; i < NodeContainerManagerContants.MOVE_CONTAINER_CONCURRENT_UPPER;i++){
+            try {
+                GlobalInfo.containerMoveThreadQueue.put(new ContainerMoveThread());
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

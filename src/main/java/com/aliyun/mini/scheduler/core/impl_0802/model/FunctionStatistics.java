@@ -96,9 +96,12 @@ public class FunctionStatistics {
                 functionType = NodeContainerManagerContants.FUNCTION_TYPE_CPU;
                 isCpuIntensive = true;
                 ContainerUpdateThread.submit(new ContainerUpdateThread.ContainerUpdateWork(NodeContainerManagerContants.FUNCTION_TYPE_CPU,this));
-            }else{
+            }else if(avgCpu < MonitorConstants.CPU_THRESHOLD_LOW){
                 functionType = NodeContainerManagerContants.FUNCTION_TYPE_PARA;
                 ContainerUpdateThread.submit(new ContainerUpdateThread.ContainerUpdateWork(NodeContainerManagerContants.FUNCTION_TYPE_PARA,this));
+            }else {
+                functionType = NodeContainerManagerContants.FUNCTION_TYPE_OTHER;
+                ContainerUpdateThread.submit(new ContainerUpdateThread.ContainerUpdateWork(NodeContainerManagerContants.FUNCTION_TYPE_OTHER,this));
             }
             realMemoryInBytes = memoryInBytes > 2 * maxMem ? memoryInBytes / 2 : memoryInBytes;
             for(String containerId : GlobalInfo.containerIdMap.get(functionName)){

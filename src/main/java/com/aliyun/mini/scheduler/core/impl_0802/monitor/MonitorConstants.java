@@ -15,7 +15,9 @@ public class MonitorConstants {
     // 平均内存大于100M视为内存密集型函数
     public static final long MEM_THRESHOLD = 100 * 1024 * 1024;
     // 平均cpu大于10视为cpu密集型
-    public static final double CPU_THRESHOLD = 0.8;
+    public static final double CPU_THRESHOLD = 10;
+    // 平均cpu小于0.1视为可并行
+    public static final double CPU_THRESHOLD_LOW = 0.1;
 
 
 }

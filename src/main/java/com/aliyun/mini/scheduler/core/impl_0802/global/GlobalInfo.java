@@ -50,6 +50,7 @@ public class GlobalInfo {
     public static LinkedBlockingQueue<ContainerCleanThread> containerCleanThreads;
     public static LinkedBlockingQueue<ReserveNodeThread> reserveNodeThreadQueue;
     public static LinkedBlockingQueue<ReleaseNodeThread> releaseNodeThreadQueue;
+    public static LinkedBlockingQueue<ContainerMoveThread> containerMoveThreadQueue;
 
     public static ResourceManagerClient resourceManagerClient;
 

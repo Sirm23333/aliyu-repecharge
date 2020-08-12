@@ -124,6 +124,8 @@ public class ContainerUpdateThread implements Runnable {
                     }
                 }else if(flag == NodeContainerManagerContants.FUNCTION_TYPE_MEM){
                     // 是内存密集型函数，尽量分开
+                } else if(flag == NodeContainerManagerContants.FUNCTION_TYPE_OTHER){
+                    // 是其他类型，先不动
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();

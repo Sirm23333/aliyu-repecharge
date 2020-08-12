@@ -11,13 +11,8 @@ import java.util.*;
 public class NodeFragmentOrderThread implements Runnable {
 
 
-    private static ContainerMoveThread containerMoveThread = new ContainerMoveThread();
-
-
-
     public static void start(){
         new Thread(new NodeFragmentOrderThread()).start();
-        new Thread(containerMoveThread).start();
     }
     @Override
     public void run() {
@@ -49,7 +44,7 @@ public class NodeFragmentOrderThread implements Runnable {
                     totalMem += containerInfo.getRealMemoryInBytes();
                 }
             }
-            retainNodeNum = (int) Math.max(Math.round(Math.ceil( (double) totalMem / (NodeContainerManagerContants.NODE_MEMORY - cpuIntensiveMemByNode))), 8);
+            retainNodeNum = (int) Math.max(Math.round(Math.ceil( (double) totalMem / (NodeContainerManagerContants.NODE_MEMORY - cpuIntensiveMemByNode))), NodeContainerManagerContants.MIN_NODE_NUM);
             System.out.println("retainNum "+retainNodeNum);
             // 所有node列表
             List<NodeInfo> nodeInfoList = new ArrayList<>(GlobalInfo.nodeInfoMap.values());
@@ -82,24 +77,21 @@ public class NodeFragmentOrderThread implements Runnable {
                                 containerInfo.setDeleted(true);
                             }else {
                                 containerInfo.setDeleted(true);
+                                GlobalInfo.threadPool.execute(GlobalInfo.removeContainerThreadQueue.take().build(containerInfo));
                             }
                         }
                     }
                 }
             }
             for(ContainerMoveThread.MoveWork moveWork : moveWorks){
-                containerMoveThread.submit(moveWork);
+                GlobalInfo.threadPool.execute(GlobalInfo.containerMoveThreadQueue.take().build(moveWork));
             }
             for(NodeInfo nodeInfo : toDelete){
                 GlobalInfo.threadPool.execute(GlobalInfo.releaseNodeThreadQueue.take().build(nodeInfo));
             }
-
-
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
-
     }
     // 在nodeContainerList[start]到nodeContainerList[end-1]中找一个最合适的node的索引返回
     // 同样的function的container尽量不放在一起，同是可并发的container尽量不放一起，内存密集型的尽量不放在一起
@@ -111,7 +103,7 @@ public class NodeFragmentOrderThread implements Runnable {
             int sameAndParaContainerNum = getSameAndParaContainerNum(containerInfo, nodeContainerListList.get(i));
             long availableMem = getAvailableMem(nodeContainerListList.get(i));
             if(availableMem > containerInfo.getRealMemoryInBytes()){
-                if(minNum < sameAndParaContainerNum){
+                if(minNum > sameAndParaContainerNum){
                     minNum = sameAndParaContainerNum;
                     selectedIdx = i;
                     maxAvailableMem = availableMem;
@@ -137,7 +129,7 @@ public class NodeFragmentOrderThread implements Runnable {
         int cnt = 0;
         for(ContainerInfo tmpContainerInfo : nodeContainerList){
             if(tmpContainerInfo.getFunctionName().equals(containerInfo.getFunctionName())){
-                cnt += 2;
+                cnt += 4;
             }else if(GlobalInfo.functionStatisticsMap.get(tmpContainerInfo.getFunctionName()).getFunctionType()
                     == GlobalInfo.functionStatisticsMap.get(containerInfo.getFunctionName()).getFunctionType()){
                 cnt++;

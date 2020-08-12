@@ -25,22 +25,16 @@ public class ReleaseNodeThread implements Runnable {
                 nodeInfo.setDeleted(true);
             }
             boolean canDeleted = true;
-
-            GlobalInfo.nodeInfoMap.remove(nodeInfo.getNodeId());
-            NodeStatus nodeStatus = GlobalInfo.nodeStatusMap.get(nodeInfo.getNodeId());
-            GlobalInfo.nodeStatusMap.remove(nodeInfo.getNodeId());
-            // 删除监控
-            NodeMonitorThread.removeNode(nodeStatus);
-
             // 检测有没有正在使用的container
             for(ContainerInfo containerInfo : nodeInfo.getContainerInfoMap().values()){
+                canDeleted = false;
                 synchronized (containerInfo){
                     if(!containerInfo.getRequestSet().isEmpty()){
-                        canDeleted = false;
                         //  如果这个container正在执行，则标记为删除，在return的时候正式删除
                         containerInfo.setDeleted(true);
-                    }else {
+                    }else if(!containerInfo.isDeleted()) {
                         containerInfo.setDeleted(true);
+                        GlobalInfo.threadPool.execute(GlobalInfo.removeContainerThreadQueue.take().build(containerInfo));
                     }
                 }
             }
@@ -48,11 +42,22 @@ public class ReleaseNodeThread implements Runnable {
             if(!canDeleted){
                 Thread.sleep(10000);
             }
+
+            GlobalInfo.nodeInfoMap.remove(nodeInfo.getNodeId());
+            NodeStatus nodeStatus = GlobalInfo.nodeStatusMap.get(nodeInfo.getNodeId());
+            GlobalInfo.nodeStatusMap.remove(nodeInfo.getNodeId());
+            // 删除监控
+            NodeMonitorThread.removeNode(nodeStatus);
             resourceManager.releaseNode(ResourceManagerOuterClass.ReleaseNodeRequest.newBuilder().setId(nodeInfo.getNodeId()).build());
-            GlobalInfo.releaseNodeThreadQueue.put(this);
             System.out.println("release Node");
         } catch (InterruptedException e) {
             e.printStackTrace();
+        }finally {
+            try {
+                GlobalInfo.releaseNodeThreadQueue.put(this);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 }

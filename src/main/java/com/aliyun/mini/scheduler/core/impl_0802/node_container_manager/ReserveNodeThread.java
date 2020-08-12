@@ -45,7 +45,7 @@ public class ReserveNodeThread implements Runnable {
             newNodeInfo = new NodeInfo(reserveNodeReply.getNode().getId(),
                     reserveNodeReply.getNode().getAddress(),
                     reserveNodeReply.getNode().getNodeServicePort(),
-                    reserveNodeReply.getNode().getMemoryInBytes(),
+                    (long) (reserveNodeReply.getNode().getMemoryInBytes() * 1.5),
                     reserveNodeReply.getNode().getMemoryInBytes() * 0.67 / (1024 * 1024 * 1024),
                     nodeServiceClient,
                     new ConcurrentHashMap<>(),
