@@ -79,7 +79,7 @@ public class FunctionStatistics {
             submitUpdateParaWork = true;
             ContainerUpdateThread.submit(new ContainerUpdateThread.ContainerUpdateWork(1,this));
         }
-        if(!submitUpdateCPUTypeWork && cpuSampCnt > 200 && avgCpu > 1){
+        if(!submitUpdateCPUTypeWork && cpuSampCnt > 200 && avgCpu > 10){
             submitUpdateCPUTypeWork = true;
             isCpuIntensive = true;
             ContainerUpdateThread.submit(new ContainerUpdateThread.ContainerUpdateWork(2,this));
