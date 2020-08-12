@@ -42,6 +42,7 @@
 /home/sirm/文档/Project/IdeaProjects/java-mini-fass/src/main/java/com/aliyun/mini/scheduler/core/impl_0802/global/InitRun.java
 /home/sirm/文档/Project/IdeaProjects/java-mini-fass/src/main/java/com/aliyun/mini/scheduler/core/impl_0802/model/FunctionStatistics.java
 /home/sirm/文档/Project/IdeaProjects/java-mini-fass/src/main/java/com/aliyun/mini/Launcher.java
+/home/sirm/文档/Project/IdeaProjects/java-mini-fass/src/main/java/com/aliyun/mini/scheduler/core/impl_0802/node_container_manager/ContainerMoveThread.java
 /home/sirm/文档/Project/IdeaProjects/java-mini-fass/target/generated-sources/protobuf/java/apiserverproto/Apiserver.java
 /home/sirm/文档/Project/IdeaProjects/java-mini-fass/target/generated-sources/protobuf/grpc-java/resourcemanagerproto/ResourceManagerGrpc.java
 /home/sirm/文档/Project/IdeaProjects/java-mini-fass/src/main/java/com/aliyun/mini/scheduler/core/impl_0802/monitor/MonitorConstants.java

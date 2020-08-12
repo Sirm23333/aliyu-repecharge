@@ -5,9 +5,12 @@ import com.aliyun.mini.scheduler.core.impl_0802.model.ContainerInfo;
 import com.aliyun.mini.scheduler.core.impl_0802.model.FunctionStatistics;
 import com.aliyun.mini.scheduler.core.impl_0802.model.NodeInfo;
 import com.aliyun.mini.scheduler.core.impl_0802.node_container_manager.CreateContainerThread;
+import com.aliyun.mini.scheduler.core.impl_0802.node_container_manager.NodeContainerManagerContants;
 import lombok.AllArgsConstructor;
 
+import java.awt.*;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
@@ -36,7 +39,7 @@ public class ContainerUpdateThread implements Runnable {
                 ContainerUpdateWork work = containerUpdateWorks.take();
                 int flag = work.flag;
                 FunctionStatistics functionStatistics = work.functionStatistics;
-                if (flag == 1){
+                if (flag == NodeContainerManagerContants.FUNCTION_TYPE_PARA){
                     // 提高函数的并行度
                     System.out.println("[TO_UPDATE_CONTAINER1]"+functionStatistics);
                     int containerNum = GlobalInfo.containerIdMap.get(functionStatistics.getFunctionName()).size();
@@ -47,9 +50,18 @@ public class ContainerUpdateThread implements Runnable {
                         functionStatistics.setParallelism(para);
                         // 要保留的container数量
                         int retainContainerNum = containerNum / para + 1;
-                        int cnt = 0;
+                        List<ContainerInfo> containerInfoList = new ArrayList<>();
                         for(String containerId : GlobalInfo.containerIdMap.get(functionStatistics.getFunctionName())){
-                            ContainerInfo containerInfo = GlobalInfo.containerInfoMap.get(containerId);
+                            containerInfoList.add(GlobalInfo.containerInfoMap.get(containerId));
+                        }
+                        containerInfoList.sort((containerInfo1,containerInfo2)->{
+                            int cnt1 = getNodeParaContainerNum(containerInfo1);
+                            int cnt2 = getNodeParaContainerNum(containerInfo2);
+                            return cnt1 - cnt2;
+                        });
+
+                        int cnt = 0;
+                        for(ContainerInfo containerInfo : containerInfoList){
                             if(cnt < retainContainerNum){
                                 synchronized (containerInfo){
                                     containerInfo.setConcurrencyUpperLimit(para);
@@ -74,7 +86,7 @@ public class ContainerUpdateThread implements Runnable {
                         }
                         System.out.println("[UPDATE_CONTAINER]"+"para="+para+","+"retain="+retainContainerNum+",delete="+(containerNum - retainContainerNum));
                     }
-                }else if(flag == 2){
+                }else if(flag == NodeContainerManagerContants.FUNCTION_TYPE_CPU){
                     System.out.println("[TO_UPDATE_CONTAINER2]"+functionStatistics);
                     ContainerInfo modelContainerInfo = GlobalInfo.containerInfoMap.get(new ArrayList<>(GlobalInfo.containerIdMap.get(functionStatistics.getFunctionName())).get(0));
                     for(NodeInfo nodeInfo : GlobalInfo.nodeInfoMap.values()){
@@ -110,16 +122,31 @@ public class ContainerUpdateThread implements Runnable {
                             GlobalInfo.threadPool.execute(createContainerThread.build(modelContainerInfo.getRequestInfo(),nodeInfo));
                         }
                     }
+                }else if(flag == NodeContainerManagerContants.FUNCTION_TYPE_MEM){
+                    // 是内存密集型函数，尽量分开
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
     }
+    // 得到container所在node的可并行的container的数量
+    private int getNodeParaContainerNum(ContainerInfo containerInfo){
+        int cnt = 0;
+        NodeInfo nodeInfo = GlobalInfo.nodeInfoMap.get(containerInfo.getNodeId());
+        for(ContainerInfo container : nodeInfo.getContainerInfoMap().values()){
+            if(GlobalInfo.functionStatisticsMap.get(container.getFunctionName()).getFunctionType() == NodeContainerManagerContants.FUNCTION_TYPE_PARA){
+                cnt++;
+            }
+        }
+        return cnt;
+    }
+
     @AllArgsConstructor
     public static class ContainerUpdateWork{
-        // 1:可并行，需要调整并行上限
-        // 2:是cpu密集型的函数，把container数量控制在和node数量相等,每个node上创建一个container
+        // 0:可并行，需要调整并行上限
+        // 1:cpu密集型函数，把container数量控制在和node数量相等,每个node上创建一个container
+        // 2:是内存密集型函数，尽量分开
         int flag;
         FunctionStatistics functionStatistics;
     }

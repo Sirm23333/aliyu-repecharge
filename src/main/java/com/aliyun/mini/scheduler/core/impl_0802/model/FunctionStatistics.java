@@ -1,5 +1,8 @@
 package com.aliyun.mini.scheduler.core.impl_0802.model;
+import com.aliyun.mini.scheduler.core.impl_0802.global.GlobalInfo;
 import com.aliyun.mini.scheduler.core.impl_0802.monitor.ContainerUpdateThread;
+import com.aliyun.mini.scheduler.core.impl_0802.monitor.MonitorConstants;
+import com.aliyun.mini.scheduler.core.impl_0802.node_container_manager.NodeContainerManagerContants;
 import lombok.Data;
 
 /**
@@ -9,6 +12,7 @@ import lombok.Data;
 public class FunctionStatistics {
     private String functionName;
     private long memoryInBytes;
+    private long realMemoryInBytes;
     private double vCPU;
     // 内存采样次数
     private int memSampCnt = 0;
@@ -56,10 +60,15 @@ public class FunctionStatistics {
     // 0为最优匹配原则，1为最先匹配原则
     private int choiceType = 0;
     private boolean isCpuIntensive = false;
+    // 函数类型 -1未知 0可并行 1cpu密集型 2内存密集型
+    private int functionType = -1;
+    // 是否提交了确定函数类型的任务
+    private boolean submitUpdateFunctionType = false;
 
     public FunctionStatistics(String functionName,long memoryInBytes){
         this.functionName = functionName;
         this.memoryInBytes = memoryInBytes;
+        this.realMemoryInBytes = memoryInBytes;
         this.vCPU = memoryInBytes * 0.67 / (1024 * 1024 * 1024);
     }
     public void appendMemSamp(long mem){
@@ -75,15 +84,39 @@ public class FunctionStatistics {
         avgSqCpu += (cpu * cpu - avgSqCpu) / cpuSampCnt;
         sCpu = avgSqCpu - avgCpu * avgCpu;
         maxCpu = Math.max(maxCpu,cpu);
-        if(!submitUpdateParaWork && cpuSampCnt > 500 && avgCpu < 0.1){
-            submitUpdateParaWork = true;
-            ContainerUpdateThread.submit(new ContainerUpdateThread.ContainerUpdateWork(1,this));
+
+        if(!submitUpdateFunctionType && cpuSampCnt > MonitorConstants.MIN_CPU_SAMP_CNT && memSampCnt > MonitorConstants.MIN_MEM_SAMP_CNT){
+            submitUpdateFunctionType = true;
+            if(maxMem * 3 > memoryInBytes || avgMem > MonitorConstants.MEM_THRESHOLD){
+                // 内存密集型函数
+                functionType = NodeContainerManagerContants.FUNCTION_TYPE_MEM;
+                ContainerUpdateThread.submit(new ContainerUpdateThread.ContainerUpdateWork(NodeContainerManagerContants.FUNCTION_TYPE_MEM,this));
+            }else if(maxCpu * 3 > vCPU * 100 || avgCpu > MonitorConstants.CPU_THRESHOLD){
+                // cpu密集型函数
+                functionType = NodeContainerManagerContants.FUNCTION_TYPE_CPU;
+                isCpuIntensive = true;
+                ContainerUpdateThread.submit(new ContainerUpdateThread.ContainerUpdateWork(NodeContainerManagerContants.FUNCTION_TYPE_CPU,this));
+            }else{
+                functionType = NodeContainerManagerContants.FUNCTION_TYPE_PARA;
+                ContainerUpdateThread.submit(new ContainerUpdateThread.ContainerUpdateWork(NodeContainerManagerContants.FUNCTION_TYPE_PARA,this));
+            }
+            realMemoryInBytes = memoryInBytes > 2 * maxMem ? memoryInBytes / 2 : memoryInBytes;
+            for(String containerId : GlobalInfo.containerIdMap.get(functionName)){
+                GlobalInfo.containerInfoMap.get(containerId).setRealMemoryInBytes(realMemoryInBytes);
+                NodeInfo nodeInfo = GlobalInfo.nodeInfoMap.get(GlobalInfo.containerInfoMap.get(containerId).getNodeId());
+                nodeInfo.setAvailableMemInBytes(nodeInfo.getAvailableMemInBytes() + (memoryInBytes - realMemoryInBytes));
+            }
         }
-        if(!submitUpdateCPUTypeWork && cpuSampCnt > 200 && avgCpu > 10){
-            submitUpdateCPUTypeWork = true;
-            isCpuIntensive = true;
-            ContainerUpdateThread.submit(new ContainerUpdateThread.ContainerUpdateWork(2,this));
-        }
+
+//        if(!submitUpdateParaWork && cpuSampCnt > 500 && avgCpu < 0.1){
+//            submitUpdateParaWork = true;
+//            ContainerUpdateThread.submit(new ContainerUpdateThread.ContainerUpdateWork(1,this));
+//        }
+//        if(!submitUpdateCPUTypeWork && cpuSampCnt > 200 && avgCpu > 10){
+//            submitUpdateCPUTypeWork = true;
+//            isCpuIntensive = true;
+//            ContainerUpdateThread.submit(new ContainerUpdateThread.ContainerUpdateWork(2,this));
+//        }
     }
     public void appendDelaySamp(long time) {
         delayTimeSampCnt++;

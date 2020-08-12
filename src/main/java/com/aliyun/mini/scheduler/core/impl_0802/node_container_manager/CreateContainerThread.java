@@ -21,6 +21,7 @@ public class CreateContainerThread implements Runnable {
 
     private RequestInfo requestInfo;
 
+    private long needMem;
     private NodeInfo nodeInfo;
 
     public CreateContainerThread build(RequestInfo requestInfo,NodeInfo nodeInfo){
@@ -35,6 +36,7 @@ public class CreateContainerThread implements Runnable {
     }
     @Override
     public void run() {
+        needMem = GlobalInfo.functionStatisticsMap.get(requestInfo.getFunctionName()).getRealMemoryInBytes();
         // 先找一个可以创建Container的node
         NodeInfo selectedNode  = null;
         long lastCleanTime = 0; // 上一次清除时间
@@ -80,8 +82,14 @@ public class CreateContainerThread implements Runnable {
                                     .setTimeoutInMs(requestInfo.getTimeOutInMs())
                                     .setHandler(requestInfo.getFunctionHandler()).build()).build());
         }catch (Exception e){
+            try {
+                GlobalInfo.createContainerThreadQueue.put(this);
+            } catch (InterruptedException ex) {
+                ex.printStackTrace();
+            }
             e.printStackTrace();
             logWriter.createContainerError(new CreateContainerErrorDTO(requestInfo.getRequestId(),e));
+            return;
         }
         ContainerInfo containerInfo = new ContainerInfo(
                 container.getContainerId(),
@@ -90,6 +98,7 @@ public class CreateContainerThread implements Runnable {
                 selectedNode.getAddress(),
                 selectedNode.getPort(),
                 requestInfo.getMemoryInBytes(),
+                needMem,
                 requestInfo.getMemoryInBytes() * 0.67 / (1024 * 1024 * 1024),
                 GlobalInfo.functionStatisticsMap.get(requestInfo.getFunctionName()).getParallelism(),
                 requestInfo);
@@ -123,7 +132,7 @@ public class CreateContainerThread implements Runnable {
 
     private NodeInfo getBestNode(){
         if(nodeInfo != null){
-            nodeInfo.setAvailableMemInBytes(nodeInfo.getAvailableMemInBytes() - requestInfo.getMemoryInBytes());
+            nodeInfo.setAvailableMemInBytes(nodeInfo.getAvailableMemInBytes() - needMem);
             nodeInfo.setAvailableVCPU(nodeInfo.getAvailableVCPU() - requestInfo.getMemoryInBytes() * 0.67 / (1024 * 1024 * 1024));
             nodeInfo.getContainerNumMap().put(requestInfo.getFunctionName(),GlobalInfo.nodeInfoMap.get(nodeInfo.getNodeId()).getContainerNumMap().getOrDefault(nodeInfo,0) + 1);
             return nodeInfo;
@@ -136,18 +145,24 @@ public class CreateContainerThread implements Runnable {
         String functionName = requestInfo.getFunctionName();
         synchronized (GlobalInfo.nodeInfoMap){
             for(NodeInfo nodeInfo : GlobalInfo.nodeInfoMap.values()){
-                if(nodeInfo.getAvailableMemInBytes() > requestInfo.getMemoryInBytes()){
-                    if(nodeInfo.getContainerNumMap().getOrDefault(functionName,0) < functionNum){
-                        functionNum = nodeInfo.getContainerNumMap().getOrDefault(functionName,0);
-                        selectedNode = nodeInfo;
-                    }else if(nodeInfo.getContainerNumMap().getOrDefault(functionName,0) == functionNum && nodeInfo.getAvailableMemInBytes() > memory){
-                        memory = nodeInfo.getAvailableMemInBytes();
-                        selectedNode = nodeInfo;
+                if(nodeInfo.getAvailableMemInBytes() > requestInfo.getMemoryInBytes()
+                        && !nodeInfo.isDeleted()){
+                    synchronized (nodeInfo){
+                        if(nodeInfo.getAvailableMemInBytes() > requestInfo.getMemoryInBytes()
+                                && !nodeInfo.isDeleted()){
+                            if(nodeInfo.getContainerNumMap().getOrDefault(functionName,0) < functionNum){
+                                functionNum = nodeInfo.getContainerNumMap().getOrDefault(functionName,0);
+                                selectedNode = nodeInfo;
+                            }else if(nodeInfo.getContainerNumMap().getOrDefault(functionName,0) == functionNum && nodeInfo.getAvailableMemInBytes() > memory){
+                                memory = nodeInfo.getAvailableMemInBytes();
+                                selectedNode = nodeInfo;
+                            }
+                        }
                     }
                 }
             }
             if(selectedNode != null){
-                selectedNode.setAvailableMemInBytes(selectedNode.getAvailableMemInBytes() - requestInfo.getMemoryInBytes());
+                selectedNode.setAvailableMemInBytes(selectedNode.getAvailableMemInBytes() - needMem);
                 selectedNode.setAvailableVCPU(selectedNode.getAvailableVCPU() - requestInfo.getMemoryInBytes() * 0.67 / (1024 * 1024 * 1024));
                 selectedNode.getContainerNumMap().put(functionName,GlobalInfo.nodeInfoMap.get(selectedNode.getNodeId()).getContainerNumMap().getOrDefault(functionName,0) + 1);
             }

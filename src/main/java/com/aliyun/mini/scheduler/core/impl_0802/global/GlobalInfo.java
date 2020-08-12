@@ -2,10 +2,7 @@ package com.aliyun.mini.scheduler.core.impl_0802.global;
 
 import com.aliyun.mini.resourcemanager.client.ResourceManagerClient;
 import com.aliyun.mini.scheduler.core.impl_0802.model.*;
-import com.aliyun.mini.scheduler.core.impl_0802.node_container_manager.ContainerCleanThread;
-import com.aliyun.mini.scheduler.core.impl_0802.node_container_manager.CreateContainerThread;
-import com.aliyun.mini.scheduler.core.impl_0802.node_container_manager.RemoveContainerThread;
-import com.aliyun.mini.scheduler.core.impl_0802.node_container_manager.ReserveNodeThread;
+import com.aliyun.mini.scheduler.core.impl_0802.node_container_manager.*;
 import io.grpc.netty.shaded.io.netty.util.internal.ConcurrentSet;
 
 import java.util.HashMap;
@@ -52,6 +49,7 @@ public class GlobalInfo {
     public static LinkedBlockingQueue<RemoveContainerThread> removeContainerThreadQueue;
     public static LinkedBlockingQueue<ContainerCleanThread> containerCleanThreads;
     public static LinkedBlockingQueue<ReserveNodeThread> reserveNodeThreadQueue;
+    public static LinkedBlockingQueue<ReleaseNodeThread> releaseNodeThreadQueue;
 
     public static ResourceManagerClient resourceManagerClient;
 

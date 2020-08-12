@@ -10,6 +10,7 @@ resourcemanagerproto/ResourceManagerOuterClass$1.class
 com/aliyun/mini/nodeservice/client/NodeServiceClient.class
 com/aliyun/mini/scheduler/core/impl_0802/model/ContainerInfo.class
 resourcemanagerproto/ResourceManagerOuterClass$ReserveNodeReply$1.class
+com/aliyun/mini/scheduler/core/impl_0802/node_container_manager/ContainerMoveThread.class
 com/aliyun/mini/resourcemanager/ResourceManagerGrpc$1.class
 nodeservoceproto/NodeServiceOuterClass$InvokeFunctionReply$Builder.class
 nodeservoceproto/NodeServiceGrpc$NodeServiceImplBase.class
@@ -177,6 +178,7 @@ nodeservoceproto/NodeServiceOuterClass$InvokeFunctionReplyOrBuilder.class
 nodeservoceproto/NodeServiceOuterClass$RemoveContainerReply$Builder.class
 nodeservoceproto/NodeServiceOuterClass$InvokeFunctionReply$1.class
 com/aliyun/mini/scheduler/core/impl_0802/monitor/NodeUpdateThread$NodeUpdateWork.class
+com/aliyun/mini/scheduler/core/impl_0802/node_container_manager/ContainerMoveThread$MoveWork.class
 com/aliyun/mini/apiserver/APIServerGrpc$APIServerFileDescriptorSupplier.class
 schedulerproto/SchedulerOuterClass$AcquireContainerReply$Builder.class
 com/aliyun/mini/scheduler/core/impl_0802/global/InitRun.class

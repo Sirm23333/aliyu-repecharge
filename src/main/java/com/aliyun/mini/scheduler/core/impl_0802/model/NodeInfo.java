@@ -27,4 +27,5 @@ public class NodeInfo {
     private ConcurrentHashMap<String,Integer> containerNumMap;
 
     private AtomicInteger cpuIntensiveNum ;
+    private boolean isDeleted;
 }

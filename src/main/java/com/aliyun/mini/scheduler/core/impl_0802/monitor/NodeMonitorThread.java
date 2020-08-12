@@ -27,6 +27,11 @@ public class NodeMonitorThread implements Runnable {
             nodeStatusList.add(nodeStatus);
         }
     }
+    public static void removeNode(NodeStatus nodeStatus){
+        synchronized (nodeStatusList){
+            nodeStatusList.remove(nodeStatus);
+        }
+    }
 
     @Override
     public void run() {

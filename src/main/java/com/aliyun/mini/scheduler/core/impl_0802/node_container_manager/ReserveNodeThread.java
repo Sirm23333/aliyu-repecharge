@@ -50,7 +50,8 @@ public class ReserveNodeThread implements Runnable {
                     nodeServiceClient,
                     new ConcurrentHashMap<>(),
                     new ConcurrentHashMap<>(),
-                    new AtomicInteger(0));
+                    new AtomicInteger(0),
+                    false);
             GlobalInfo.nodeInfoMap.put(newNodeInfo.getNodeId(), newNodeInfo);
             NodeStatus nodeStatus = new NodeStatus(newNodeInfo.getNodeId(),nodeServiceClient);
             GlobalInfo.nodeStatusMap.put(nodeStatus.getNodeId(), nodeStatus);

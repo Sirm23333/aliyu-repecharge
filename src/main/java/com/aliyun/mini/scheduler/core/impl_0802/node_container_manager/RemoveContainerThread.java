@@ -32,7 +32,7 @@ public class RemoveContainerThread implements Runnable{
         GlobalInfo.containerInfoMap.remove(containerId);
         NodeInfo nodeInfo =  GlobalInfo.nodeInfoMap.get(nodeId);
         nodeInfo.getContainerInfoMap().remove(containerId);
-        nodeInfo.setAvailableMemInBytes(nodeInfo.getAvailableMemInBytes() + containerInfo.getMemoryInBytes());
+        nodeInfo.setAvailableMemInBytes(nodeInfo.getAvailableMemInBytes() + containerInfo.getRealMemoryInBytes());
         nodeInfo.setAvailableVCPU(nodeInfo.getAvailableVCPU() + containerInfo.getVCPU());
         GlobalInfo.nodeInfoMap.get(nodeId).getContainerNumMap().put(containerInfo.getFunctionName(),GlobalInfo.nodeInfoMap.get(nodeId).getContainerNumMap().get(containerInfo.getFunctionName())-1);
         // 正式删除container

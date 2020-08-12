@@ -18,6 +18,8 @@ public class ContainerInfo {
     private long port;
     // 该容器的内存上限
     private long memoryInBytes;
+    // 为min{memoryInBytes,maxMem * 2} 和functionStatistics中的realMemoryInBytes对应
+    private long realMemoryInBytes;
     // 该容器的 vCPU = memoryInBytes / (1024 * 1024 * 1024) * 0.67
     private double vCPU;
     // 并行数上限
@@ -39,7 +41,7 @@ public class ContainerInfo {
     private long lastUseTimeStamp = Long.MAX_VALUE;
 
 
-    public ContainerInfo(String containerId, String functionName, String nodeId, String address, long port, long memoryInBytes, double vCPU, int concurrencyUpperLimit,RequestInfo requestInfo) {
+    public ContainerInfo(String containerId, String functionName, String nodeId, String address, long port, long memoryInBytes,long realMemoryInBytes ,  double vCPU, int concurrencyUpperLimit,RequestInfo requestInfo) {
         this.containerId = containerId;
         this.functionName = functionName;
         this.nodeId = nodeId;
@@ -49,5 +51,6 @@ public class ContainerInfo {
         this.vCPU = vCPU;
         this.concurrencyUpperLimit = concurrencyUpperLimit;
         this.requestInfo = requestInfo;
+        this.realMemoryInBytes = realMemoryInBytes;
     }
 }

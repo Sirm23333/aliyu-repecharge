@@ -71,9 +71,19 @@ public class InitRun {
             }
         }
 
+        GlobalInfo.releaseNodeThreadQueue = new LinkedBlockingQueue<>();
+        for(int i = 0; i < NodeContainerManagerContants.RELEASE_NODE_CONCURRENT_UPPER;i++){
+            try {
+                GlobalInfo.releaseNodeThreadQueue.put(new ReleaseNodeThread());
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
         NodeApplyThread.start();
         NodeMonitorThread.start();
         ContainerUpdateThread.start();
+        NodeFragmentOrderThread.start();
 
     }
 
