@@ -20,7 +20,7 @@ public class ReleaseNodeThread implements Runnable {
     @Override
     public void run() {
         try {
-            System.out.println("to delete..."+nodeInfo);
+//            System.out.println("to delete..."+nodeInfo);
             synchronized (nodeInfo){
                 nodeInfo.setDeleted(true);
             }
@@ -49,7 +49,7 @@ public class ReleaseNodeThread implements Runnable {
             // 删除监控
             NodeMonitorThread.removeNode(nodeStatus);
             resourceManager.releaseNode(ResourceManagerOuterClass.ReleaseNodeRequest.newBuilder().setId(nodeInfo.getNodeId()).build());
-            System.out.println("release Node");
+//            System.out.println("release Node");
         } catch (InterruptedException e) {
             e.printStackTrace();
         }finally {

@@ -11,7 +11,7 @@ public class NodeApplyThread implements Runnable {
 
     public static void start(){
         new Thread(new NodeApplyThread()).start();
-        System.out.println("NodeApplyThread start...");
+//        System.out.println("NodeApplyThread start...");
     }
 
     @Override
@@ -38,9 +38,9 @@ public class NodeApplyThread implements Runnable {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                for(FunctionStatistics functionStatistics : GlobalInfo.functionStatisticsMap.values()){
-                    System.out.println("[FUNCTION_INFO]"+functionStatistics);
-                }
+//                for(FunctionStatistics functionStatistics : GlobalInfo.functionStatisticsMap.values()){
+//                    System.out.println("[FUNCTION_INFO]"+functionStatistics);
+//                }
             }
         }catch (Exception e){
             e.printStackTrace();

@@ -41,11 +41,11 @@ public class SchedulerImp_0730 extends SchedulerImplBase {
     @Override
     public void acquireContainer(AcquireContainerRequest request,
                                  StreamObserver<AcquireContainerReply> responseObserver) {
-        try{
-            logWriter.newRequestInfo(new NewRequestDTO(request.getRequestId(),request.getFunctionName(),request.getFunctionConfig().getMemoryInBytes(),request.getFunctionConfig().getTimeoutInMs()));
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+//        try{
+//            logWriter.newRequestInfo(new NewRequestDTO(request.getRequestId(),request.getFunctionName(),request.getFunctionConfig().getMemoryInBytes(),request.getFunctionConfig().getTimeoutInMs()));
+//        }catch (Exception e){
+//            e.printStackTrace();
+//        }
 
         RequestInfo requestInfo = new RequestInfo(
                 request.getAccountId(),

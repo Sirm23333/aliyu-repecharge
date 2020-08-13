@@ -14,7 +14,7 @@ public class NodeContainerManagerContants {
     // 允许同时删除node的最大线程数
     public static int RELEASE_NODE_CONCURRENT_UPPER = 5;
     // 最多允许使用的node数
-    public static int MAX_NODE_NUM = 18;
+    public static int MAX_NODE_NUM = 10;
     public static int MIN_NODE_NUM = 5;
 
     // 清理container时使用多级缓存置换+LRU算法，对响应时间小于以下阈值时间(ms)的container做为低优先清除的container
@@ -22,7 +22,7 @@ public class NodeContainerManagerContants {
     // 低优先级清除的container需要标记CONTAINER_CLEAN_SIGN_CNT次才可以被删除
     public static int CONTAINER_CLEAN_SIGN_CNT_LOWER = 10;
     // node碎片整理周期时间 5min
-    public static long NODE_ORDER_START_TIME = 5 * 60 * 1000;
+    public static long NODE_ORDER_START_TIME = 3 * 60 * 1000;
 //    public static long NODE_ORDER_START_TIME = 60 * 1000;
 
     public static int FUNCTION_TYPE_PARA = 0;

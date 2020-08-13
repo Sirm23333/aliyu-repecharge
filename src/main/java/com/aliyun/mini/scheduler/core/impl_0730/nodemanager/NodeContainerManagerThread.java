@@ -68,7 +68,7 @@ public class NodeContainerManagerThread implements Runnable{
                                 reserveNodeReply = resourceManager.reserveNode(ReserveNodeRequest.newBuilder()
                                         .setAccountId(peekRequestInfo.getAccountId()).build());
                             }catch (Exception e){
-                                logWriter.reserveNodeError(new ReserveNodeErrorDTO(peekRequestInfo.getRequestId(),e));
+//                                logWriter.reserveNodeError(new ReserveNodeErrorDTO(peekRequestInfo.getRequestId(),e));
                                 break;
                             }
                             log.info("ReserveNode-"+reserveNodeReply.getNode().getId());

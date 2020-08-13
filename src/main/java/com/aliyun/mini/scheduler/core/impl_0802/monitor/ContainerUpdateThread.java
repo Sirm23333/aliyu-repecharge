@@ -29,7 +29,7 @@ public class ContainerUpdateThread implements Runnable {
     }
     public static void start(){
         new Thread(new ContainerUpdateThread()).start();
-        System.out.println("ContainerUpdateThread start...");
+//        System.out.println("ContainerUpdateThread start...");
     }
 
     @Override
@@ -41,7 +41,7 @@ public class ContainerUpdateThread implements Runnable {
                 FunctionStatistics functionStatistics = work.functionStatistics;
                 if (flag == NodeContainerManagerContants.FUNCTION_TYPE_PARA){
                     // 提高函数的并行度
-                    System.out.println("[TO_UPDATE_CONTAINER1]"+functionStatistics);
+//                    System.out.println("[TO_UPDATE_CONTAINER1]"+functionStatistics);
                     int containerNum = GlobalInfo.containerIdMap.get(functionStatistics.getFunctionName()).size();
                     double cpuUse = functionStatistics.getMaxCpu();
                     double memUse = functionStatistics.getMaxMem();
@@ -72,7 +72,7 @@ public class ContainerUpdateThread implements Runnable {
                                     if(!containerInfo.getRequestSet().isEmpty()){
                                         //  如果这个container正在执行，则标记为删除，在return的时候正式删除
                                         containerInfo.setDeleted(true);
-                                    }else {
+                                    }else if(!containerInfo.isDeleted()){
                                         containerInfo.setDeleted(true);
                                         try {
                                             GlobalInfo.threadPool.execute(GlobalInfo.removeContainerThreadQueue.take().build(containerInfo));
@@ -84,10 +84,10 @@ public class ContainerUpdateThread implements Runnable {
                             }
                             cnt++;
                         }
-                        System.out.println("[UPDATE_CONTAINER]"+"para="+para+","+"retain="+retainContainerNum+",delete="+(containerNum - retainContainerNum));
+//                        System.out.println("[UPDATE_CONTAINER]"+"para="+para+","+"retain="+retainContainerNum+",delete="+(containerNum - retainContainerNum));
                     }
                 }else if(flag == NodeContainerManagerContants.FUNCTION_TYPE_CPU){
-                    System.out.println("[TO_UPDATE_CONTAINER2]"+functionStatistics);
+//                    System.out.println("[TO_UPDATE_CONTAINER2]"+functionStatistics);
                     ContainerInfo modelContainerInfo = GlobalInfo.containerInfoMap.get(new ArrayList<>(GlobalInfo.containerIdMap.get(functionStatistics.getFunctionName())).get(0));
                     for(NodeInfo nodeInfo : GlobalInfo.nodeInfoMap.values()){
                         if(nodeInfo.getContainerNumMap().get(functionStatistics.getFunctionName()) != null
@@ -101,7 +101,7 @@ public class ContainerUpdateThread implements Runnable {
                                             if(!containerInfo.getRequestSet().isEmpty()){
                                                 //  如果这个container正在执行，则标记为删除，在return的时候正式删除
                                                 containerInfo.setDeleted(true);
-                                            }else {
+                                            }else if(!containerInfo.isDeleted()){
                                                 containerInfo.setDeleted(true);
                                                 try {
                                                     GlobalInfo.threadPool.execute(GlobalInfo.removeContainerThreadQueue.take().build(containerInfo));

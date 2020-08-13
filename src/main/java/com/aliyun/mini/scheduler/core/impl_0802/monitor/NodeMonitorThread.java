@@ -17,9 +17,9 @@ public class NodeMonitorThread implements Runnable {
 
     public static void start(){
         new Thread(new NodeMonitorThread()).start();
-        System.out.println("NodeMonitor start...");
+//        System.out.println("NodeMonitor start...");
         new Thread(nodeUpdateThread).start();
-        System.out.println("nodeUpdateThread start...");
+//        System.out.println("nodeUpdateThread start...");
     }
 
     public static void addNode(NodeStatus nodeStatus){

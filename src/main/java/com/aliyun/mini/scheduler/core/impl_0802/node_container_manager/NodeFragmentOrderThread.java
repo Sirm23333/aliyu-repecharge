@@ -27,7 +27,7 @@ public class NodeFragmentOrderThread implements Runnable {
             }
             // 等待一段时间，让container处理完成
             Thread.sleep(5000);
-            System.out.println("to start order");
+//            System.out.println("to start order");
             List<ContainerMoveThread.MoveWork> moveWorks = new ArrayList<>();
             long totalMem = 0; // 现存在的所有container需要的总内存，除了cpu密集型的
             int retainNodeNum ; // 需要保留的node数量
@@ -45,7 +45,7 @@ public class NodeFragmentOrderThread implements Runnable {
                 }
             }
             retainNodeNum = (int) Math.max(Math.round(Math.ceil( (double) totalMem / (NodeContainerManagerContants.NODE_MEMORY - cpuIntensiveMemByNode))), NodeContainerManagerContants.MIN_NODE_NUM);
-            System.out.println("retainNum "+retainNodeNum);
+//            System.out.println("retainNum "+retainNodeNum);
             // 所有node列表
             List<NodeInfo> nodeInfoList = new ArrayList<>(GlobalInfo.nodeInfoMap.values());
             // 将列表按container数量由多到少排序，即会保留container数量多的前retainNodeNum个node
@@ -75,7 +75,7 @@ public class NodeFragmentOrderThread implements Runnable {
                             if(!containerInfo.getRequestSet().isEmpty()){
                                 //  如果这个container正在执行，则标记为删除，在return的时候正式删除
                                 containerInfo.setDeleted(true);
-                            }else {
+                            }else if(!containerInfo.isDeleted()){
                                 containerInfo.setDeleted(true);
                                 GlobalInfo.threadPool.execute(GlobalInfo.removeContainerThreadQueue.take().build(containerInfo));
                             }

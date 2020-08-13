@@ -47,7 +47,7 @@ public class SchedulerImp_0722 extends SchedulerImplBase {
 
 
 
-        logWriter.newRequestInfo(new NewRequestDTO(requestId,functionName,memoryInBytes,timeoutInMs));
+//        logWriter.newRequestInfo(new NewRequestDTO(requestId,functionName,memoryInBytes,timeoutInMs));
         requestMap.put(requestId,functionName);
         ContainerInfo selectedContainer = null , tmpContainer;
         Map<String, ContainerInfo> containerMap = functionMap.get(functionName);
@@ -112,12 +112,12 @@ public class SchedulerImp_0722 extends SchedulerImplBase {
                 ReserveNodeReply reserveNodeReply = null;
                 try{
 
-                    logWriter.readyToReserveNode(new ReadyToReserveNodeDTO(requestId));
+//                    logWriter.readyToReserveNode(new ReadyToReserveNodeDTO(requestId));
                     reserveNodeReply = resourceManager.reserveNode(ReserveNodeRequest.newBuilder()
                             .setAccountId(request.getAccountId()).build());
                 }catch (Exception e){
-                    logWriter.reserveNodeError(new ReserveNodeErrorDTO(requestId,e));
-                    System.out.println("try again..");
+//                    logWriter.reserveNodeError(new ReserveNodeErrorDTO(requestId,e));
+//                    System.out.println("try again..");
                     try {
                         Thread.sleep(200);
                     } catch (InterruptedException ex) {
@@ -135,7 +135,7 @@ public class SchedulerImp_0722 extends SchedulerImplBase {
                         reserveNodeReply.getNode().getMemoryInBytes() - memoryInBytes,
                         nodeServiceClient,new HashSet<>());
 
-                logWriter.newNodeInfo(new NewNodeDTO(requestId,selectedNodeInfo.getNodeId(),selectedNodeInfo.getAddress(),selectedNodeInfo.getPort()));
+//                logWriter.newNodeInfo(new NewNodeDTO(requestId,selectedNodeInfo.getNodeId(),selectedNodeInfo.getAddress(),selectedNodeInfo.getPort()));
                 nodeMap.put(selectedNodeInfo.getNodeId(),selectedNodeInfo);
             }
             // 在选定的node上创建container
@@ -154,7 +154,7 @@ public class SchedulerImp_0722 extends SchedulerImplBase {
                                 .build()
                 );
             }catch (Exception e){
-                logWriter.createContainerError(new CreateContainerErrorDTO(requestId,e));
+//                logWriter.createContainerError(new CreateContainerErrorDTO(requestId,e));
                 responseObserver.onNext(null);
                 responseObserver.onCompleted();
                 return;
@@ -165,7 +165,7 @@ public class SchedulerImp_0722 extends SchedulerImplBase {
 //            if(request.getFunctionName().contains("6") || request.getFunctionName().contains("7") || request.getFunctionName().contains("8") || request.getFunctionName().contains("9")){
 //                selectedContainer.setReqLimit(1);
 //            }
-            logWriter.newContainerInfo(new NewContainerDTO(requestId,selectedNodeInfo.getNodeId(),selectedContainer.getId()));
+//            logWriter.newContainerInfo(new NewContainerDTO(requestId,selectedNodeInfo.getNodeId(),selectedContainer.getId()));
 
             functionMap.get(functionName).put(selectedContainer.getId(),selectedContainer);
             selectedNodeInfo.getContainerSet().add(selectedContainer.getId());
@@ -177,14 +177,14 @@ public class SchedulerImp_0722 extends SchedulerImplBase {
                 containerStats = tmp;
             }
         }
-        try{
-            logWriter.selectedContainerInfo(new SelectedContainerDTO(requestId,selectedContainer.getId()));
-            logWriter.nodeStatsInfo(new NodeStatsDTO(selectedContainer.getNodeId(),stats.getNodeStats().getTotalMemoryInBytes(),stats.getNodeStats().getMemoryUsageInBytes(),stats.getNodeStats().getAvailableMemoryInBytes(),stats.getNodeStats().getCpuUsagePct()));
-            logWriter.containerStatsInfo(new ContainerStatsDTO(selectedContainer.getId(),containerStats.getTotalMemoryInBytes(),containerStats.getMemoryUsageInBytes(),containerStats.getCpuUsagePct(),selectedContainer.getRequestSet().size()));
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+//        try{
+//            logWriter.selectedContainerInfo(new SelectedContainerDTO(requestId,selectedContainer.getId()));
+//            logWriter.nodeStatsInfo(new NodeStatsDTO(selectedContainer.getNodeId(),stats.getNodeStats().getTotalMemoryInBytes(),stats.getNodeStats().getMemoryUsageInBytes(),stats.getNodeStats().getAvailableMemoryInBytes(),stats.getNodeStats().getCpuUsagePct()));
+//            logWriter.containerStatsInfo(new ContainerStatsDTO(selectedContainer.getId(),containerStats.getTotalMemoryInBytes(),containerStats.getMemoryUsageInBytes(),containerStats.getCpuUsagePct(),selectedContainer.getRequestSet().size()));
+//
+//        }catch (Exception e){
+//            e.printStackTrace();
+//        }
         AcquireContainerReply acquireContainerReply = AcquireContainerReply.newBuilder()
                 .setNodeId(selectedContainer.getNodeId())
                 .setNodeAddress(selectedContainer.getAddress())
@@ -201,7 +201,7 @@ public class SchedulerImp_0722 extends SchedulerImplBase {
         ContainerInfo containerInfo = functionMap.get(requestMap.get(request.getRequestId())).get(request.getContainerId());
         NodeInfo nodeInfo = nodeMap.get(containerInfo.getNodeId());
 
-        logWriter.containerRunInfo(new ContainerRunDTO(request.getRequestId(),request.getContainerId(),request.getDurationInNanos(),request.getMaxMemoryUsageInBytes(),request.getErrorCode(),request.getErrorMessage()));
+//        logWriter.containerRunInfo(new ContainerRunDTO(request.getRequestId(),request.getContainerId(),request.getDurationInNanos(),request.getMaxMemoryUsageInBytes(),request.getErrorCode(),request.getErrorMessage()));
 
         synchronized (containerInfo){
             containerInfo.getRequestSet().remove(request.getRequestId());
@@ -211,7 +211,7 @@ public class SchedulerImp_0722 extends SchedulerImplBase {
                 nodeInfo.setAvailableMemInBytes(nodeInfo.getAvailableMemInBytes() + containerInfo.getMemoryInBytes());
                 nodeInfo.getContainerSet().remove(containerInfo.getId());
                 functionMap.get(requestMap.get(request.getRequestId())).remove(request.getContainerId());
-                logWriter.removeContainerInfo(new RemoveContainerDTO(containerInfo.getId()));
+//                logWriter.removeContainerInfo(new RemoveContainerDTO(containerInfo.getId()));
             }
         }
         requestMap.remove(request.getRequestId());

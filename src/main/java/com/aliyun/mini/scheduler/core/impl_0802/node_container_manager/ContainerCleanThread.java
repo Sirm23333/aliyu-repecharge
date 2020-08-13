@@ -24,7 +24,7 @@ public class ContainerCleanThread implements Runnable {
     }
     @Override
     public void run() {
-        System.out.println("start clean container..."+requestInfo);
+//        System.out.println("start clean container..."+requestInfo);
         // 记录在一次清理中，每个node将会清理出的内存
         Map<String,MemoryRecord> nodeCleanMemory = new HashMap<>();
         long needMemory = requestInfo.getMemoryInBytes();
@@ -59,7 +59,7 @@ public class ContainerCleanThread implements Runnable {
                 }
             }
             if(selected == null){
-                System.out.println("[CLEAN_FAIL]" + requestInfo);
+//                System.out.println("[CLEAN_FAIL]" + requestInfo);
                 try {
                     GlobalInfo.containerCleanThreads.put(this);
                 } catch (InterruptedException e) {
@@ -67,14 +67,14 @@ public class ContainerCleanThread implements Runnable {
                 }
                 return;
             }
-            if(selected.cleanMemory < needMemory){
-                System.out.println("[CLEAN_NOT_ENOUGH]"+requestInfo);
-            }
+//            if(selected.cleanMemory < needMemory){
+////                System.out.println("[CLEAN_NOT_ENOUGH]"+requestInfo);
+//            }
             for(ContainerInfo containerInfo : selected.containerInfos){
                 synchronized (containerInfo){
                     containerInfo.setDeleted(true);
                 }
-                GlobalInfo.containerLRU.remove(containerInfo.getContainerId());
+
             }
         }
         // 正式删除
@@ -93,7 +93,7 @@ public class ContainerCleanThread implements Runnable {
                 future.get();
             }
             GlobalInfo.containerCleanThreads.put(this);
-            logWriter.cleanContainerInfo(new ContainerCleanDTO(requestInfo.getRequestId(),selected.nodeId,containerIdList));
+//            logWriter.cleanContainerInfo(new ContainerCleanDTO(requestInfo.getRequestId(),selected.nodeId,containerIdList));
         } catch (Exception e) {
             e.printStackTrace();
         }

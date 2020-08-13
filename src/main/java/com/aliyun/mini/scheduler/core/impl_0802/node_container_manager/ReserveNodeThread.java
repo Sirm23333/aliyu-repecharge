@@ -39,13 +39,13 @@ public class ReserveNodeThread implements Runnable {
         NodeInfo newNodeInfo;
         ReserveNodeReply reserveNodeReply;
         try {
-            logWriter.readyToReserveNode(new ReadyToReserveNodeDTO(requestInfo.getRequestId()));
+//            logWriter.readyToReserveNode(new ReadyToReserveNodeDTO(requestInfo.getRequestId()));
             reserveNodeReply = resourceManager.reserveNode(ReserveNodeRequest.newBuilder().build());
             NodeServiceClient nodeServiceClient = NodeServiceClient.New(reserveNodeReply.getNode().getAddress() + ":" + reserveNodeReply.getNode().getNodeServicePort());
             newNodeInfo = new NodeInfo(reserveNodeReply.getNode().getId(),
                     reserveNodeReply.getNode().getAddress(),
                     reserveNodeReply.getNode().getNodeServicePort(),
-                    (long) (reserveNodeReply.getNode().getMemoryInBytes() * 1.5),
+                    (long) (reserveNodeReply.getNode().getMemoryInBytes() * 2),
                     reserveNodeReply.getNode().getMemoryInBytes() * 0.67 / (1024 * 1024 * 1024),
                     nodeServiceClient,
                     new ConcurrentHashMap<>(),
@@ -57,10 +57,10 @@ public class ReserveNodeThread implements Runnable {
             GlobalInfo.nodeStatusMap.put(nodeStatus.getNodeId(), nodeStatus);
             // 加入监控
             NodeMonitorThread.addNode(nodeStatus);
-            logWriter.newNodeInfo(new NewNodeDTO(requestInfo.getRequestId(), newNodeInfo.getNodeId(), newNodeInfo.getAddress(), newNodeInfo.getPort()));
+//            logWriter.newNodeInfo(new NewNodeDTO(requestInfo.getRequestId(), newNodeInfo.getNodeId(), newNodeInfo.getAddress(), newNodeInfo.getPort()));
         } catch (Exception e) {
             // 创建失败了
-            logWriter.reserveNodeError(new ReserveNodeErrorDTO(requestInfo.getRequestId(), e));
+//            logWriter.reserveNodeError(new ReserveNodeErrorDTO(requestInfo.getRequestId(), e));
             try {
                 Thread.sleep(1000);
                 run();

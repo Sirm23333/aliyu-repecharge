@@ -32,11 +32,11 @@ public class SchedulerImp_0802 extends SchedulerImplBase {
     public void acquireContainer(AcquireContainerRequest request,
                                  StreamObserver<AcquireContainerReply> responseObserver) {
         long start  = System.nanoTime();
-        try{
-            logWriter.newRequestInfo(new NewRequestDTO(request.getRequestId(),request.getFunctionName(),request.getFunctionConfig().getMemoryInBytes(),request.getFunctionConfig().getTimeoutInMs()));
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+//        try{
+//            logWriter.newRequestInfo(new NewRequestDTO(request.getRequestId(),request.getFunctionName(),request.getFunctionConfig().getMemoryInBytes(),request.getFunctionConfig().getTimeoutInMs()));
+//        }catch (Exception e){
+//            e.printStackTrace();
+//        }
 
         RequestInfo requestInfo = new RequestInfo(
                 request.getAccountId(),
@@ -121,7 +121,7 @@ public class SchedulerImp_0802 extends SchedulerImplBase {
                 .setContainerId(selectedContainer.getContainerId())
                 .build());
         requestInfo.getResponseObserver().onCompleted();
-        logWriter.selectedContainerInfo(new SelectedContainerDTO(requestInfo.getRequestId(),selectedContainer.getContainerId()));
+//        logWriter.selectedContainerInfo(new SelectedContainerDTO(requestInfo.getRequestId(),selectedContainer.getContainerId()));
     }
 
     @Override
@@ -180,7 +180,7 @@ public class SchedulerImp_0802 extends SchedulerImplBase {
         double minScore = Double.MAX_VALUE;
         FunctionStatistics functionStatistics = GlobalInfo.functionStatisticsMap.get(requestInfo.getFunctionName());
         if(functionStatistics.isCpuIntensive()){
-            System.out.println("cpu intensive get container"+requestInfo);
+//            System.out.println("cpu intensive get container"+requestInfo);
             // 如果是cpu密集型，每个node仅可以同时执行1个此类函数
             synchronized (containerIds){
                 for(String containerId : containerIds){
@@ -201,6 +201,9 @@ public class SchedulerImp_0802 extends SchedulerImplBase {
                     }
                 }
                 if(selectContainer != null){
+                    if(selectContainer.isDeleted()){
+                        return getBestContainer(requestInfo);
+                    }
                     GlobalInfo.nodeStatusMap.get(selectContainer.getNodeId())
                             .setEstimateCPU(GlobalInfo.nodeStatusMap.get(selectContainer.getNodeId()).getEstimateCPU()
                                     + GlobalInfo.functionStatisticsMap.get(selectContainer.getFunctionName()).getAvgCpu());
@@ -247,6 +250,9 @@ public class SchedulerImp_0802 extends SchedulerImplBase {
                     }
                 }
                 if(selectContainer != null){
+                    if(selectContainer.isDeleted()){
+                        return getBestContainer(requestInfo);
+                    }
                     GlobalInfo.nodeStatusMap.get(selectContainer.getNodeId())
                             .setEstimateCPU(GlobalInfo.nodeStatusMap.get(selectContainer.getNodeId()).getEstimateCPU()
                                     + GlobalInfo.functionStatisticsMap.get(selectContainer.getFunctionName()).getAvgCpu());

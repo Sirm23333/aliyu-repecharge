@@ -33,6 +33,7 @@ public class RemoveContainerThread implements Runnable{
             GlobalInfo.containerInfoMap.remove(containerId);
             NodeInfo nodeInfo =  GlobalInfo.nodeInfoMap.get(nodeId);
             nodeInfo.getContainerInfoMap().remove(containerId);
+            GlobalInfo.containerLRU.remove(containerInfo.getContainerId());
             nodeInfo.setAvailableMemInBytes(nodeInfo.getAvailableMemInBytes() + containerInfo.getRealMemoryInBytes());
             nodeInfo.setAvailableVCPU(nodeInfo.getAvailableVCPU() + containerInfo.getVCPU());
             GlobalInfo.nodeInfoMap.get(nodeId).getContainerNumMap().put(containerInfo.getFunctionName(),GlobalInfo.nodeInfoMap.get(nodeId).getContainerNumMap().get(containerInfo.getFunctionName())-1);
@@ -41,7 +42,7 @@ public class RemoveContainerThread implements Runnable{
             synchronized (GlobalInfo.nodeLock){
                 GlobalInfo.nodeLock.notifyAll();
             }
-            logWriter.removeContainerInfo(new RemoveContainerDTO(containerId));
+//            logWriter.removeContainerInfo(new RemoveContainerDTO(containerId));
         }catch (Exception e){
             e.printStackTrace();
         }

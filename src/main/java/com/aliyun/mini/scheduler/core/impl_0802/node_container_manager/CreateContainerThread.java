@@ -88,7 +88,7 @@ public class CreateContainerThread implements Runnable {
                 ex.printStackTrace();
             }
             e.printStackTrace();
-            logWriter.createContainerError(new CreateContainerErrorDTO(requestInfo.getRequestId(),e));
+//            logWriter.createContainerError(new CreateContainerErrorDTO(requestInfo.getRequestId(),e));
             return;
         }
         ContainerInfo containerInfo = new ContainerInfo(
@@ -108,7 +108,7 @@ public class CreateContainerThread implements Runnable {
         GlobalInfo.nodeStatusMap.get(selectedNode.getNodeId()).getContainerStatusMap().put(containerStatus.getContainerId(),containerStatus);
         GlobalInfo.nodeInfoMap.get(selectedNode.getNodeId()).getContainerInfoMap().put(containerInfo.getContainerId(),containerInfo);
         GlobalInfo.containerIdMap.get(containerInfo.getFunctionName()).add(containerInfo.getContainerId());
-        logWriter.newContainerInfo(new NewContainerDTO(requestInfo.getRequestId(),selectedNode.getNodeId(),containerInfo.getContainerId()));
+//        logWriter.newContainerInfo(new NewContainerDTO(requestInfo.getRequestId(),selectedNode.getNodeId(),containerInfo.getContainerId()));
         synchronized (GlobalInfo.containerLRU){
             GlobalInfo.containerLRU.put(containerInfo.getContainerId(),containerInfo);
         }
