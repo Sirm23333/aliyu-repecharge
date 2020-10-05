@@ -3,8 +3,6 @@ package com.aliyun.mini.scheduler.core.impl_0802.node_container_manager;
 import com.aliyun.mini.scheduler.core.impl_0802.global.GlobalInfo;
 import com.aliyun.mini.scheduler.core.impl_0802.model.ContainerInfo;
 import com.aliyun.mini.scheduler.core.impl_0802.model.NodeInfo;
-import com.java.mini.faas.ana.dto.RemoveContainerDTO;
-import com.java.mini.faas.ana.log.LogWriter;
 import nodeservoceproto.NodeServiceOuterClass;
 
 /**
@@ -14,7 +12,7 @@ import nodeservoceproto.NodeServiceOuterClass;
  */
 public class RemoveContainerThread implements Runnable{
 
-    LogWriter logWriter = LogWriter.getInstance();
+//    LogWriter logWriter = LogWriter.getInstance();
 
     private ContainerInfo containerInfo;
 

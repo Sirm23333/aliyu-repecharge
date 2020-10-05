@@ -3,8 +3,6 @@ package com.aliyun.mini.scheduler.core.impl_0802.node_container_manager;
 import com.aliyun.mini.scheduler.core.impl_0802.global.GlobalInfo;
 import com.aliyun.mini.scheduler.core.impl_0802.model.ContainerInfo;
 import com.aliyun.mini.scheduler.core.impl_0802.model.RequestInfo;
-import com.java.mini.faas.ana.dto.ContainerCleanDTO;
-import com.java.mini.faas.ana.log.LogWriter;
 import java.util.*;
 import java.util.concurrent.Future;
 
@@ -14,7 +12,7 @@ import java.util.concurrent.Future;
  */
 public class ContainerCleanThread implements Runnable {
 
-    private LogWriter logWriter = LogWriter.getInstance();
+//    private LogWriter logWriter = LogWriter.getInstance();
 
     private RequestInfo requestInfo;
 

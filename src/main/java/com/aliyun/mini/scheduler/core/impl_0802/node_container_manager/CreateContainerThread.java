@@ -2,9 +2,6 @@ package com.aliyun.mini.scheduler.core.impl_0802.node_container_manager;
 
 import com.aliyun.mini.scheduler.core.impl_0802.global.GlobalInfo;
 import com.aliyun.mini.scheduler.core.impl_0802.model.*;
-import com.java.mini.faas.ana.dto.CreateContainerErrorDTO;
-import com.java.mini.faas.ana.dto.NewContainerDTO;
-import com.java.mini.faas.ana.log.LogWriter;
 import lombok.extern.slf4j.Slf4j;
 import nodeservoceproto.NodeServiceOuterClass.*;
 
@@ -17,7 +14,7 @@ import java.util.UUID;
 @Slf4j
 public class CreateContainerThread implements Runnable {
 
-    LogWriter logWriter = LogWriter.getInstance();
+//    LogWriter logWriter = LogWriter.getInstance();
 
     private RequestInfo requestInfo;
 

@@ -58,11 +58,11 @@
             <artifactId>fastjson</artifactId>
             <version>1.2.51</version>
         </dependency>
-        <dependency>
-            <groupId>com.java.mini.faas.ana</groupId>
-            <artifactId>java-mini-faas-ana</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.java.mini.faas.ana</groupId>-->
+<!--            <artifactId>java-mini-faas-ana</artifactId>-->
+<!--            <version>1.0-SNAPSHOT</version>-->
+<!--        </dependency>-->
     </dependencies>
 
     <build>

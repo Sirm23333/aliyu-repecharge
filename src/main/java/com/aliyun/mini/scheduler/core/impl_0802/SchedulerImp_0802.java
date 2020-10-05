@@ -7,10 +7,6 @@ import com.aliyun.mini.scheduler.core.impl_0802.model.NodeStatus;
 import com.aliyun.mini.scheduler.core.impl_0802.model.RequestInfo;
 import com.aliyun.mini.scheduler.core.impl_0802.node_container_manager.CreateContainerThread;
 import com.aliyun.mini.scheduler.proto.SchedulerGrpc.SchedulerImplBase;
-import com.java.mini.faas.ana.dto.ContainerRunDTO;
-import com.java.mini.faas.ana.dto.NewRequestDTO;
-import com.java.mini.faas.ana.dto.SelectedContainerDTO;
-import com.java.mini.faas.ana.log.LogWriter;
 import io.grpc.netty.shaded.io.netty.util.internal.ConcurrentSet;
 import io.grpc.stub.StreamObserver;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +22,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Slf4j
 public class SchedulerImp_0802 extends SchedulerImplBase {
 
-    LogWriter logWriter = LogWriter.getInstance();
 
     @Override
     public void acquireContainer(AcquireContainerRequest request,
@@ -130,7 +125,7 @@ public class SchedulerImp_0802 extends SchedulerImplBase {
         ContainerInfo containerInfo = GlobalInfo.containerInfoMap.get(request.getContainerId());
         try{
             GlobalInfo.functionStatisticsMap.get(GlobalInfo.containerInfoMap.get(request.getContainerId()).getFunctionName()).appendUseTime(System.nanoTime() - GlobalInfo.useStartMap_Tmp.get(request.getContainerId()));
-            logWriter.containerRunInfo(new ContainerRunDTO(request.getRequestId(),request.getContainerId(),request.getDurationInNanos(),request.getMaxMemoryUsageInBytes(),request.getErrorCode(),request.getErrorMessage()));
+//            logWriter.containerRunInfo(new ContainerRunDTO(request.getRequestId(),request.getContainerId(),request.getDurationInNanos(),request.getMaxMemoryUsageInBytes(),request.getErrorCode(),request.getErrorMessage()));
         }catch (Exception e){
             e.printStackTrace();
         }

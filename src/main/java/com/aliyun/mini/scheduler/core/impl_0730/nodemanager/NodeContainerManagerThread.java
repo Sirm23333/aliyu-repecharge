@@ -4,8 +4,6 @@ import com.aliyun.mini.nodeservice.client.NodeServiceClient;
 import com.aliyun.mini.resourcemanager.client.ResourceManagerClient;
 import com.aliyun.mini.scheduler.core.impl_0730.global.GlobalInfo;
 import com.aliyun.mini.scheduler.core.impl_0730.model.*;
-import com.java.mini.faas.ana.dto.ReserveNodeErrorDTO;
-import com.java.mini.faas.ana.log.LogWriter;
 import lombok.extern.slf4j.Slf4j;
 import nodeservoceproto.NodeServiceOuterClass.*;
 import resourcemanagerproto.ResourceManagerOuterClass.*;
@@ -18,7 +16,7 @@ import java.util.*;
 @Slf4j
 public class NodeContainerManagerThread implements Runnable{
 
-    LogWriter logWriter = LogWriter.getInstance();
+//    LogWriter logWriter = LogWriter.getInstance();
 
     private ResourceManagerClient resourceManager;
 

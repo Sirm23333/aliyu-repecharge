@@ -7,10 +7,6 @@ import com.aliyun.mini.scheduler.core.impl_0802.model.NodeStatus;
 import com.aliyun.mini.scheduler.core.impl_0802.model.RequestInfo;
 import com.aliyun.mini.scheduler.core.impl_0802.monitor.MonitorConstants;
 import com.aliyun.mini.scheduler.core.impl_0802.monitor.NodeMonitorThread;
-import com.java.mini.faas.ana.dto.NewNodeDTO;
-import com.java.mini.faas.ana.dto.ReadyToReserveNodeDTO;
-import com.java.mini.faas.ana.dto.ReserveNodeErrorDTO;
-import com.java.mini.faas.ana.log.LogWriter;
 import lombok.extern.slf4j.Slf4j;
 import resourcemanagerproto.ResourceManagerOuterClass.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -27,7 +23,7 @@ public class ReserveNodeThread implements Runnable {
 
     private RequestInfo requestInfo;
 
-    LogWriter logWriter = LogWriter.getInstance();
+//    LogWriter logWriter = LogWriter.getInstance();
 
 
     public ReserveNodeThread build(RequestInfo requestInfo){

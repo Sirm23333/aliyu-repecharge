@@ -4,9 +4,6 @@ import com.aliyun.mini.resourcemanager.client.ResourceManagerClient;
 import com.aliyun.mini.scheduler.core.impl_0722.model.ContainerInfo;
 import com.aliyun.mini.scheduler.core.impl_0722.model.NodeInfo;
 import com.aliyun.mini.scheduler.proto.SchedulerGrpc.*;
-import com.aliyun.mini.scheduler.util.NumberUtil;
-import com.java.mini.faas.ana.dto.*;
-import com.java.mini.faas.ana.log.LogWriter;
 import io.grpc.stub.StreamObserver;
 import lombok.extern.slf4j.Slf4j;
 import nodeservoceproto.NodeServiceOuterClass.*;
@@ -19,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class SchedulerImp_0722 extends SchedulerImplBase {
 
-    private LogWriter logWriter = LogWriter.getInstance();
+//    private LogWriter logWriter = LogWriter.getInstance();
 
     private ResourceManagerClient resourceManager = ResourceManagerClient.New();
     // nodeId -> nodeInfo
